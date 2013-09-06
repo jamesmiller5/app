@@ -2,13 +2,14 @@ API Overview
 
 --Account's & Login--
 ## User Registration ##
-# User's have to 'claim' an email and verify they own that address. We can pass
-# a ClaimToken in the email body and when they click a link it sends them back
-# to this system with that token for account setup. 
-# We could also have a "merge" and "unmerge" to claim multiple emails but that
-# is a little out of the project scope
+*Terminology change
+*signup - claim a first email address to register with
+*claim - get a token via email and add it to an account
+*register - the process of actually making an account and final step of claiming first email
+*affiliation - school/work of a user 
 
-- claim( email ) returns ClaimToken 
+
+- signup( email ) returns ClaimToken 
 	- Sends "New User" message to email with ClaimToken
 - register( ClaimToken, Name, Password, PasswordVerify )
 	- Creates a new account with Name if Password==PasswordVerify
@@ -21,6 +22,26 @@ API Overview
 	- Session can expire 
 - logout( Session )
 	- Expires session immediately 
+	
+- addEmail( email) 
+	- Adds email to account
+	- Merges authority
+	
+-removeEmail(email)
+	- Removes email from the Account's list of emails
+	
+- addAffiliation(affiliation)
+	- Adds the affiliation to the account
+
+- removeAffiliation(affiliation)
+	- Removes the affiliation from the account
+
+- addCitation(citation)
+	- Adds the citation to the Account's list of work
+	
+-removeCitation(citation)
+	- Removes the citation from the Account's list of work
+	
 
 
 --Authority Network--
@@ -34,7 +55,7 @@ API Overview
 - untrust( Session, TrustEdge )
 	- Requires a valid Session
 	- Requires a <TrustEdge> be present
-- viewSubjectiveNetwork( Session, threshold ) returns SubjectivePeers[]
+- viewSubjectiveNetwork( Session, threshold, subject) returns SubjectivePeers[]
 	- Requires a valid Session
 	- Returns subjective scores for all trusted peers
 - viewPublicNetwork(email) returns Peers[]
