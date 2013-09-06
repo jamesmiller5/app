@@ -3,60 +3,84 @@ API Overview
 --Account's & Login--
 ## User Registration ##
 *Terminology change
-*signup - claim a first email address to register with
-*claim - get a token via email and add it to an account
-*register - the process of actually making an account and final step of claiming first email
-*affiliation - school/work of a user 
-
+*signup - signup a first email address to register with
+*register - the process of actually making an account and final step of signing up the first email
+*portfolio - school & work of a <User>, has a title field to label how
+Citation relates eg. "Education : http://cs.purdue.edu"
 
 - signup( email ) returns ClaimToken 
 	- Sends "New User" message to email with ClaimToken
+
 - register( ClaimToken, Name, Password, PasswordVerify )
-	- Creates a new account with Name if Password==PasswordVerify
+	- Creates a new <User> with Name if Password==PasswordVerify
 	- TODO: Some kind of min password length
+
 - recoverPassword( email ) returns RecoverToken
 	- Sends a new RecoverToken to <email> if email is registered
 	- Similar to register without the "name" form fields, could just re-use
+
 - login( email, password ) returns Session
 	- Must be valid combo
 	- Session can expire 
+
 - logout( Session )
 	- Expires session immediately 
 	
-- addEmail( email) 
-	- Adds email to account
+- addEmail( Session, email ) 
+	- Adds email to <User>
 	- Merges authority
 	
--removeEmail(email)
-	- Removes email from the Account's list of emails
+- removeEmail( Session, email )
+	- Requires a valid session
+	- Removes email from the <User> list of emails
 	
-- addAffiliation(affiliation)
-	- Adds the affiliation to the account
-
-- removeAffiliation(affiliation)
-	- Removes the affiliation from the account
-
-- addCitation(citation)
-	- Adds the citation to the Account's list of work
+- addToPortfolio( Session, Citation )
+	- Requires a valid session
+	- Adds the citation to the <Users>'s portfolio
 	
--removeCitation(citation)
-	- Removes the citation from the Account's list of work
+- removeFromPortfolio( Session, Citation )
+	- Requires a valid session
+	- Removes the citation from the <Users>'s portfolio
 	
-
 
 --Authority Network--
 
-- trust( Session, email, subject, reasons[] ) returns TrustEdge
+- trust( Session, email, Subject, Citations[] ) returns TrustEdge
 	- Requires a valid session
 	- Creates a <TrustEdge> from Session.User to <email>
-	- Satisfies: I trust <email> about <subject> for these <reasons[]>
+	- Satisfies: I trust <email> about <Subject> for these <reasons[]>
 	  statement
 	- TODO: If <email> is not registered, prompt for invitation into network
+	- At least one Citation is required, you wouldn't trust someone for no
+	  reason
+
 - untrust( Session, TrustEdge )
 	- Requires a valid Session
 	- Requires a <TrustEdge> be present
-- viewSubjectiveNetwork( Session, threshold, subject) returns SubjectivePeers[]
-	- Requires a valid Session
-	- Returns subjective scores for all trusted peers
-- viewPublicNetwork(email) returns Peers[]
+
+- updateCitations( Session, TrustEdge, Citations[] )
+	- Requires a valid session
+	- Strait replace old citations on <TrustEdge> with new Citations[]
+	- Must be none empty list of Citations[]
+
+- viewSubjectiveNetwork( Session, Subject, threshold ) returns TrustEdge[]
+	- Requires a valid session
+	- Returns subjective scores for all trusted peers that are above threshold
+	- Threshold can range from 0 to 1,000
+
+- viewPublicNetwork( email ) returns TrustEdge[]
 	- Returns all trusted edges for that user if exists
+
+-- Class#TrustEdge
+	from: <User>
+	to: <User>
+	about: <Subject>
+	reasons: Citations[]
+	score: <SubjectiveScore> - This score subjective and calculated on demand
+	for the current Session.User based on Subject's and graph properties.
+
+-- Class#Citation
+	dateCreated
+	String title //Human readble title for this citation, can be blank(?)
+	String resource //Must be non-empty, could be a Url class instead but
+	we'll see
