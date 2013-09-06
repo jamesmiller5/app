@@ -21,6 +21,26 @@ API Overview
 	- Session can expire 
 - logout( Session )
 	- Expires session immediately 
+	
+- addEmail( email) 
+	- Adds email to account
+	- Merges authority
+	
+-removeEmail(email)
+	- Removes email from the Account's list of emails
+	
+- addAffiliation(affiliation)
+	- Adds the affiliation to the account
+
+- removeAffiliation(affiliation)
+	- Removes the affiliation from the account
+
+- addCitation(citation)
+	- Adds the citation to the Account's list of work
+	
+-removeCitation(citation)
+	- Removes the citation from the Account's list of work
+	
 
 
 --Authority Network--
