@@ -27,12 +27,14 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 	- Expires session immediately 
 	
 - addEmail( Session, email ) 
+	- Requires a valid session
 	- Adds email to <User>
-	- Merges authority
+	- Merges auto-created <User> with Session.User
 	
 - removeEmail( Session, email )
 	- Requires a valid session
 	- Removes email from the <User> list of emails
+	- <TrustEdge>'s are NOT lost, they continue to trust the same <User>
 	
 - addToPortfolio( Session, Citation )
 	- Requires a valid session
