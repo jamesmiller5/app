@@ -1,0 +1,8 @@
+Team 4: Authority Publishing Platform - APP
+
+Repository: https://github.com/jamesmiller5/app
+	- Note, team members are forking and submitting pull request viewable
+	  under the "pulse" tab
+
+Test-Plan & Product Backlog: https://github.com/jamesmiller5/app/tree/software-testing/doc
+	- Under "/doc/" in repository
