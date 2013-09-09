@@ -21,7 +21,7 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 
 - login( email, password ) returns Session
 	- Must be valid combo
-	- Session can expire 
+	- Session will go stale (expire) after a certain amount of time.
 
 - logout( Session )
 	- Expires session immediately 
@@ -43,7 +43,10 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 - removeFromPortfolio( Session, Citation )
 	- Requires a valid session
 	- Removes the citation from the <Users>'s portfolio
-	
+
+- viewPortfolio( email ) returns Citation[]
+	- Returns list of Citations associated with <User>'s portfolio
+
 
 --Authority Network--
 
@@ -65,12 +68,12 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 	- Strait replace old citations on <TrustEdge> with new Citations[]
 	- Must be none empty list of Citations[]
 
-- viewSubjectiveNetwork( Session, Subject, threshold ) returns TrustEdge[]
+- viewSubjectiveNetwork( Session, Subject, threshold ) returns SubjectiveEdge[]
 	- Requires a valid session
-	- Returns subjective scores for all trusted peers that are above threshold
-	- Threshold can range from 0 to 1,000
+	- Walks trust network, scoring peers on <Subject> returning edges above threshold
+	- Threshold can range from 0 to 1000
 
-- viewPublicNetwork( email ) returns TrustEdge[]
+- viewTrustNetwork( email ) returns TrustEdge[]
 	- Returns all trusted edges for that user if exists
 
 -- Class#TrustEdge
@@ -78,11 +81,15 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 	to: <User>
 	about: <Subject>
 	reasons: Citations[]
+
+-- Class#SubjectiveEdge
+	to:   <User>
+	about: <Subject>
 	score: <SubjectiveScore> - This score subjective and calculated on demand
 	for the current Session.User based on Subject's and graph properties.
 
 -- Class#Citation
 	dateCreated
-	String title //Human readble title for this citation, can be blank(?)
+	String description //Human readble description for this citation, can be blank(?)
 	String resource //Must be non-empty, could be a Url class instead but
 	we'll see
