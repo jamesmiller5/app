@@ -27,6 +27,15 @@ public class Email {
 		app.Email isBlank = new app.Email("");
 	}
 
+	@Test
+	public void validUnclaimed() {
+		app.Email email = new app.Email("ab@ba");
+
+		assertEquals( email.isValid(), true );
+		assertEquals( email.isClaimed, false );
+		assertEquals( email.getEmail(), email );
+	}
+
     @Test
     public void isValid() {
 		app.Email isOK = new app.Email("foo@example.com");

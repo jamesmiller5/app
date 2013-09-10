@@ -8,7 +8,7 @@ public class Session {
 	public final Date validUntil;
 
 	public Session(User user, Date validUntil) {
-		if(email == null || validUntil == null) {
+		if(user == null || validUntil == null) {
 			throw new IllegalArgumentException();
 		}
 		this.user = user;
