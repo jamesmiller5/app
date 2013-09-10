@@ -6,6 +6,6 @@ public class Hello {
 	}
 
 	public String ping() {
-		return "pong";
+		return "pong!";
 	}
 }
