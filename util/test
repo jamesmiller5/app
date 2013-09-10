@@ -6,7 +6,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 export CLASSPATH="$DIR/deps/junit/*:$DIR/src"
 
 #compile test classes
-find "$DIR/src/test" -name "*.java" | xargs javac
+find "$DIR/src/" -name "*.java" | xargs javac
 
 #run test classes through JUnit,       Strip filename up-to /src/, get classname  replace / with ".", Tell junit to run that class
 find "$DIR/src/test" -name "*.class" | sed "s:\(.*\)/src/\(.*\)\.class:\2:" | tr "/" "." | xargs java org.junit.runner.JUnitCore 
