@@ -2,6 +2,7 @@ package app;
 
 import java.io.File;
 import java.io.IOException;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.util.FileUtils;
@@ -9,7 +10,7 @@ import org.neo4j.kernel.impl.util.FileUtils;
 public abstract class GraphDatabase {
 	//make a scratch dir for database & other data stores at the app root
 	public static final File scratch = new File(Hello.class.getClassLoader().getResource("").getPath() + File.separator + ".." + File.separator + "scratch");
-    public static final String DB_NAME = scratch.getPath() + File.separator + "neo4j-hello-db";
+    public static final String DB_NAME = scratch.getPath() + File.separator + "neo4j-db";
 
     private static GraphDatabaseService graphDb = null;
 	private static Thread shutdownHook = null;
@@ -33,6 +34,15 @@ public abstract class GraphDatabase {
 		//open embedded database
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_NAME );
         registerShutdownHook( graphDb );
+
+		//build indices, should be an observer pattern(?) eventually
+		Email.BuildIndices();
+
+		//Wait for indices to be built or fail after 30 seconds
+		try (Transaction tx = graphDb.beginTx()){
+			graphDb.schema().awaitIndexesOnline( 30, java.util.concurrent.TimeUnit.SECONDS );
+			tx.success();
+		}
 	}
 
 	public static void shutdown() {

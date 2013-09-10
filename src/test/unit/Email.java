@@ -9,6 +9,7 @@ import org.junit.*;
 public class Email {
 	@Before
 	public void setup() {
+		DatabaseTester.clearDb();
 	}
 
 	@After
@@ -43,4 +44,10 @@ public class Email {
 		//should pass, are valid
 		assertEquals( isOK.isValid(), true );
     }
+
+	@Test
+	public void queryDbByAddress() {
+		//TODO
+		DatabaseTester.markDirty();
+	}
 }
