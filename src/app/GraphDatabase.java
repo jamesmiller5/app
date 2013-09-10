@@ -3,7 +3,6 @@ package app;
 import java.io.File;
 import java.io.IOException;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.util.FileUtils;
 
@@ -15,7 +14,7 @@ public abstract class GraphDatabase {
     private static GraphDatabaseService graphDb = null;
 	private static Thread shutdownHook = null;
 
-	public static Transaction startTransaction() {
+	public static GraphDatabaseService get() {
 		if( graphDb == null ) {
 			startup();
 
@@ -24,7 +23,7 @@ public abstract class GraphDatabase {
 			}
 		}
 
-		return graphDb.beginTx();
+		return graphDb;
 	}
 
 	public static void startup() {
