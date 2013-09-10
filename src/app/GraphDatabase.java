@@ -2,11 +2,7 @@ package app;
 
 import java.io.File;
 import java.io.IOException;
-import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.util.FileUtils;
@@ -16,10 +12,22 @@ public abstract class GraphDatabase {
 	public static final File scratch = new File(Hello.class.getClassLoader().getResource("").getPath() + File.separator + ".." + File.separator + "scratch");
     public static final String DB_NAME = scratch.getPath() + File.separator + "neo4j-hello-db";
 
-    private static final GraphDatabaseService graphDb;
+    private static GraphDatabaseService graphDb = null;
+	private static Thread shutdownHook = null;
 
-	//always invoked upon class inclusion, removes startup commands
-	static {
+	public static Transaction startTransaction() {
+		if( graphDb == null ) {
+			startup();
+
+			if( graphDb == null ) {
+				throw new IllegalStateException("Couldn't create GraphDatabaseService");
+			}
+		}
+
+		return graphDb.beginTx();
+	}
+
+	public static void startup() {
 		//make sure this directory exists
 		scratch.mkdir();
 
@@ -28,15 +36,26 @@ public abstract class GraphDatabase {
         registerShutdownHook( graphDb );
 	}
 
-	public static Transaction startTransaction() {
-		return graphDb.beginTx();
+	public static void shutdown() {
+		if( shutdownHook != null ) {
+			Runtime.getRuntime().removeShutdownHook( shutdownHook );
+			shutdownHook = null;
+		}
+
+		if( graphDb != null ) {
+			graphDb.shutdown();
+			graphDb = null;
+		}
 	}
 
-    private static void clearDb() {
+	//for unit testing mostly
+    public static void clearDb() {
+		//shutdown db first
+		shutdown();
+
         try {
             FileUtils.deleteRecursively( new File( DB_NAME ) );
-        }
-        catch ( IOException e ) {
+        } catch ( IOException e ) {
             throw new RuntimeException( e );
         }
     }
@@ -45,11 +64,13 @@ public abstract class GraphDatabase {
         // Registers a shutdown hook for the Neo4j instance so that it
         // shuts down nicely when the VM exits (even if you "Ctrl-C" the
         // running application).
-        Runtime.getRuntime().addShutdownHook( new Thread() {
+		shutdownHook = new Thread() {
             @Override
             public void run() {
                 graphDb.shutdown();
             }
-        } );
+        };
+
+        Runtime.getRuntime().addShutdownHook( shutdownHook );
     }
 }
