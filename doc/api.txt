@@ -26,10 +26,10 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 - logout( Session )
 	- Expires session immediately 
 	
-- addEmail( Session, email ) 
+- addEmail( Session, ClaimToken ) 
 	- Requires a valid session
 	- Adds email to <User>
-	- Merges auto-created <User> with Session.User
+	- Merges email's trust links with Session.User (Merges <TrustNode>s)
 	
 - removeEmail( Session, email )
 	- Requires a valid session
