@@ -1,0 +1,14 @@
+#!/bin/bash
+#Capture root app directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+
+function error {
+	echo "Error Building, will now hault"
+	exit 1
+}
+
+#Include dependancies such as jUnit and our code
+export CLASSPATH="$DIR/deps/junit/*:$DIR/deps/neo4j/*:$DIR/src"
+
+#compile project classes
+find "$DIR/src/" -name "*.java" | xargs javac || error
