@@ -18,7 +18,7 @@ public class RelationshipFactory {
 	// however, could not find examples of this
 	private String getOrCreateQuery =
 		"Start s=node({from}), e=node({to})\n"+
-		"CREATE UNIQUE s-[r:%s]-e\n"+
+		"CREATE UNIQUE s-[r:%s]->e\n"+
 		"RETURN r\n"+
 		"";
 		/*

@@ -7,5 +7,5 @@ public enum RelType implements RelationshipType
 	FROM,
 	FOR,
 	OWNS,
-	REASON
+	REASON,
 }

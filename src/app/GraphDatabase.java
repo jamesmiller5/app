@@ -66,6 +66,7 @@ public abstract class GraphDatabase {
 		if( graphDb != null ) {
 			graphDb.shutdown();
 			graphDb = null;
+			engine = null;
 		}
 	}
 
