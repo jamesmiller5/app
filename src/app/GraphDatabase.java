@@ -2,10 +2,13 @@ package app;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.util.FileUtils;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
 
 public abstract class GraphDatabase {
 	//make a scratch dir for database & other data stores at the app root
@@ -13,6 +16,8 @@ public abstract class GraphDatabase {
     public static final String DB_NAME = scratch.getPath() + File.separator + "neo4j-db";
 
     private static GraphDatabaseService graphDb = null;
+	private static ExecutionEngine engine = null;
+
 	private static Thread shutdownHook = null;
 
 	public static GraphDatabaseService get() {
@@ -27,6 +32,13 @@ public abstract class GraphDatabase {
 		return graphDb;
 	}
 
+	public static ExecutionResult execute(String query, Map<String, Object> params) {
+		if( engine == null ) {
+			engine = new ExecutionEngine( GraphDatabase.get() );
+		}
+		return engine.execute(query, params);
+	}
+
 	public static void startup() {
 		//make sure this directory exists
 		scratch.mkdir();
@@ -36,7 +48,7 @@ public abstract class GraphDatabase {
         registerShutdownHook( graphDb );
 
 		//build indices, should be an observer pattern(?) eventually
-		Email.BuildIndices();
+		//Email.BuildIndices();
 
 		//Wait for indices to be built or fail after 30 seconds
 		try (Transaction tx = graphDb.beginTx()){
