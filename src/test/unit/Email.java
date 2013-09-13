@@ -35,6 +35,24 @@ public class Email {
 		app.Email isBlank = new app.Email("aazz");
 	}
 
+	//We expect this to throw an exception
+	@Test(expected=IllegalArgumentException.class)
+	public void isValid_only_at_sign_exception() {
+		app.Email atOnly = new app.Email("@");
+	}
+
+	//We expect this to throw an exception
+	@Test(expected=IllegalArgumentException.class)
+	public void isValid_at_is_at_end() {
+		app.Email atEnd = new app.Email("foo@");
+	}
+
+	//We expect this to throw an exception
+	@Test(expected=IllegalArgumentException.class)
+	public void isValid_at_is_at_front() {
+		app.Email atFront = new app.Email("@example.com");
+	}
+
 	@Test
 	public void checkBasicEmail() {
 		app.Email email = new app.Email("foo@example.com");
