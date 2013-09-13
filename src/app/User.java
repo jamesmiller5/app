@@ -1,8 +1,10 @@
 package app;
 
-public class User implements Identity {
-	public final Email[] emails;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.Node;
 
+public class User extends Entity {
+	/*
 	public User(final Email[] emails) {
 		if( emails == null || emails.length>0 ) {
 			throw new IllegalArgumentException();
@@ -13,4 +15,5 @@ public class User implements Identity {
 	public Email getEmail() {
 		return emails[0];
 	}
+	*/
 }
