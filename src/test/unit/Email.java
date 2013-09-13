@@ -1,6 +1,6 @@
 package test.unit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import org.junit.*;
 
 /**
@@ -14,12 +14,13 @@ public class Email {
 
 	@After
 	public void teardown() {
+		app.GraphDatabase.shutdown();
 	}
 
 	//We expect this to throw an exception
 	@Test(expected=IllegalArgumentException.class)
 	public void isValid_null_exception() {
-		app.Email isNull = new app.Email(null);
+		app.Email isNull = new app.Email((String)null);
 	}
 
 	//We expect this to throw an exception
@@ -28,26 +29,40 @@ public class Email {
 		app.Email isBlank = new app.Email("");
 	}
 
-	@Test
-	public void validUnclaimed() {
-		app.Email email = new app.Email("ab@ba");
+	//We expect this to throw an exception
+	@Test(expected=IllegalArgumentException.class)
+	public void isValid_no_at_sign_exception() {
+		app.Email isBlank = new app.Email("aazz");
+	}
 
-		assertEquals( email.isValid(), true );
-		assertEquals( email.isClaimed, false );
-		assertEquals( email.getEmail(), email );
+	@Test
+	public void checkBasicEmail() {
+		app.Email email = new app.Email("foo@example.com");
+
+		// should be starting from a fresh database so email should
+		// be unique.
+		assertNotNull( email.getClaimToken() );
 	}
 
     @Test
-    public void isValid() {
-		app.Email isOK = new app.Email("foo@example.com");
+    public void isValidAddress() {
+		app.Email validEmail = new app.Email("foo@example.com");
 
 		//should pass, are valid
-		assertEquals( isOK.isValid(), true );
+		assertTrue( app.Email.isValidAddress(validEmail.getAddress()));
     }
 
 	@Test
-	public void queryDbByAddress() {
-		//TODO
-		DatabaseTester.markDirty();
+	public void checkNoDuplicate() {
+		app.Email sameEmail1 = new app.Email("aa@aa");
+		app.Email sameEmail2 = new app.Email("aa@aa");
+		app.Email diffEmail  = new app.Email("bb@bb");
+
+		assertEquals( sameEmail1.getClaimToken(), sameEmail2.getClaimToken() );
+		assertFalse(  diffEmail.getClaimToken().equals(sameEmail1.getClaimToken()) );
+		assertFalse(  diffEmail.getClaimToken().equals(sameEmail2.getClaimToken()) );
+
+		assertTrue("duplicate email is different Node.", sameEmail1.getInternalNode().equals(sameEmail2.getInternalNode()));
+		assertTrue("different email is the same Node.", diffEmail.getInternalNode().getId()!=sameEmail1.getInternalNode().getId());
 	}
 }

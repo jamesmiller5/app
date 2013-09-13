@@ -1,0 +1,11 @@
+#!/bin/bash
+# clean - remove project class files before build
+
+function error {
+	echo "Error during clean, will exit"
+	exit 1
+}
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+
+find "$DIR/src" -name "*.class" | xargs rm 

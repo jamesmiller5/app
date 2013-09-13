@@ -1,11 +1,14 @@
 package app;
 
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.GraphDatabaseService;
 import java.util.Date;
 
-public class Citation {
-	public final Date dateCreated;
-	public final String description;
-	public final String resource;
+public class Citation extends Entity {
+	private final static String DESCRIPTION = "Description";
+	private final static String RESOURCE = "Resource";
+	private final static String DATE_CREATED = "DateCreated";
 
 	public Citation(String description, String resource) {
 		if( description == null
@@ -15,8 +18,45 @@ public class Citation {
 		{
 			throw new IllegalArgumentException();
 		}
-		this.description = description;
-		this.resource = resource;
-		this.dateCreated = new Date();
+
+		GraphDatabaseService graphDb = graphDb();
+		try( Transaction tx = graphDb.beginTx() ) {
+			Node node = graphDb.createNode( LabelDef.CITATION );
+			node.setProperty( DESCRIPTION, description );
+			node.setProperty( RESOURCE, resource );
+			node.setProperty( DATE_CREATED, getTimeUTC() );
+			tx.success();
+			initialize(node);
+		}
+	}
+
+	public String getDescription() {
+		// No description parameter is an illegal state
+		try( Transaction tx = graphDb().beginTx() ) {
+			String description = (String) getInternalNode().getProperty(DESCRIPTION);
+			tx.success();
+			return description;
+		}
+	}
+
+	public String getResource() {
+		// No resouce parameter is an illegal state
+		try( Transaction tx = graphDb().beginTx() ) {
+			String resource = (String) getInternalNode().getProperty(RESOURCE);
+			tx.success();
+			return resource;
+		}
+	}
+	public Date getDateCreated() {
+		// No Date parameter is an illegal state
+		try( Transaction tx = graphDb().beginTx() ) {
+			long date = (long) getInternalNode().getProperty(DATE_CREATED);
+			tx.success();
+			return new Date(date);
+		}
+	}
+
+	private long getTimeUTC() {
+		return new Date().getTime();
 	}
 }

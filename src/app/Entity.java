@@ -10,14 +10,6 @@ public abstract class Entity {
 		this.internalNode = internalNode;
 	}
 
-	protected void initialize(Label label, String key, Object value) {
-		try(Transaction tx = graphDb().beginTx()) {
-			ResourceIterable<Node> nodes = graphDb().findNodesByLabelAndProperty( label, key, value );
-			this.internalNode = getSingle( nodes );
-			tx.success();
-		}
-	}
-
 	public Relationship createRelationshipTo(Entity other, RelType type) {
 		return RelationshipFactory.get().getOrCreateRelationship(this.internalNode, other.internalNode, type);
 	}
@@ -35,5 +27,14 @@ public abstract class Entity {
 
 	public Node getInternalNode() {
 		return internalNode;
+	}
+
+	public static Node findNodeExisting(Label label, String key, Object value) {
+		try(Transaction tx = graphDb().beginTx()) {
+			ResourceIterable<Node> nodes = graphDb().findNodesByLabelAndProperty( label, key, value );
+			Node node = getSingle( nodes );
+			tx.success();
+			return node;
+		}
 	}
 }

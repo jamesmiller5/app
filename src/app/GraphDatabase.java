@@ -66,8 +66,9 @@ public abstract class GraphDatabase {
 		if( graphDb != null ) {
 			graphDb.shutdown();
 			graphDb = null;
-			engine = null;
 		}
+
+		engine = null;
 	}
 
 	//for unit testing mostly
@@ -76,7 +77,7 @@ public abstract class GraphDatabase {
 		shutdown();
 
         try {
-            FileUtils.deleteRecursively( new File( DB_NAME ) );
+           	FileUtils.deleteRecursively( new File( DB_NAME ) );
         } catch ( IOException e ) {
             throw new RuntimeException( e );
         }

@@ -16,7 +16,7 @@ public class Token {
 	@Override
 	public boolean equals(Object obj) {
 		if( obj instanceof ClaimToken ) {
-			return this.signature == ((Token)obj).signature;
+			return this.signature.equals(((Token)obj).signature);
 		}
 		return false;
 	}

@@ -7,5 +7,7 @@ enum LabelDef implements Label {
 	USER,
 	EMAIL,
 	CITATION,
-	TRUSTEDGE
+	TRUSTEDGE,
+	UNIQUE,
+	CREATED
 }
