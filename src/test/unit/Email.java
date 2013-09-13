@@ -17,19 +17,16 @@ public class Email {
 		app.GraphDatabase.shutdown();
 	}
 
-	//We expect this to throw an exception
 	@Test(expected=IllegalArgumentException.class)
 	public void isValid_null_exception() {
 		app.Email isNull = new app.Email((String)null);
 	}
 
-	//We expect this to throw an exception
 	@Test(expected=IllegalArgumentException.class)
 	public void isValid_blank_exception() {
 		app.Email isBlank = new app.Email("");
 	}
 
-	//We expect this to throw an exception
 	@Test(expected=IllegalArgumentException.class)
 	public void isValid_no_at_sign_exception() {
 		app.Email isBlank = new app.Email("aazz");
