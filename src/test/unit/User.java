@@ -18,24 +18,22 @@ public class User {
 	public void teardown() {
 		u = null;
 	}
-	
+
 	@Test (expected=IllegalArgumentException.class)
 	public void testUserCreation() {
-		app.Email[] emails = new app.Email[] { new app.Email("one@two") };
-		u = new app.User(emails);
-		
+		u = new app.User(null);
 	}
-	
+
 	@Test
 	public void testEmails() {
-		app.Email[] emails = new app.Email[] { new app.Email("one@two"), 
-												new app.Email("one@two"), 
-												new app.Email("one@two"), 
-												new app.Email("one@two"), 
+		app.Email[] emails = new app.Email[] { new app.Email("one@two"),
+												new app.Email("one@two"),
+												new app.Email("one@two"),
+												new app.Email("one@two"),
 												new app.Email("one@two")};
-												
+
 		u = new app.User(emails);
-		
-		assertEquals(u.getEmail(), emails);
+
+		assertEquals(u.getEmail(), emails[0]);
 	}
 }

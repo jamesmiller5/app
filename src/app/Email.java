@@ -54,7 +54,7 @@ public class Email extends Entity {
 
 
 		// If doesn't contain '@' sign or the '@' is at the front or at the end, not valid.
-		if( address.indexOf('@') <= 0 || address.indexOf('@') == address.length()) return false;
+		if( address.indexOf('@') <= 0 || address.lastIndexOf('@') == (address.length() - 1) ) return false;
 		return true;
 	}
 }

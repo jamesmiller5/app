@@ -17,6 +17,8 @@ public class Session {
 
 	public boolean isValid() {
 		Date now = new Date();
-		return now.before(validUntil);
+
+		//test if validUntil is equal to now or now is < 0 (before validUntil)
+		return (now.compareTo(validUntil) <= 0);
 	}
 }

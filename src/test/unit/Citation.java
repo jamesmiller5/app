@@ -2,6 +2,7 @@ package test.unit;
 
 import static org.junit.Assert.*;
 import org.junit.*;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Date;
  */
 public class Citation {
 	app.Citation c;
-	
+
 	@Before
 	public void setup() {
 	}
@@ -17,24 +18,22 @@ public class Citation {
 	@After
 	public void teardown() {
 	}
-	
+
 	@Test (expected=IllegalArgumentException.class)
 	public void excessiveDescription() {
-		String s = "";
-		for(int i = 0; i < 257; i++) {
-			s.concat("a");
-		}
-		
-		c = new app.Citation(s, "test");
+		char[] array = new char[257];
+		Arrays.fill(array, 'a');
+		String s = new String(array);
+
+		c = new app.Citation("test", s);
 	}
-	
+
 	@Test (expected=IllegalArgumentException.class)
 	public void excessiveResource() {
-		String r = "";
-		for(int i = 0; i < 257; i++) {
-			r.concat("a");
-		}
-		
+		char[] array = new char[257];
+		Arrays.fill(array, 'a');
+		String r = new String(array);
+
 		c = new app.Citation(r, "test");
 	}
 
