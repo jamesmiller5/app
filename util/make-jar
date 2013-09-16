@@ -1,0 +1,36 @@
+#!/bin/bash
+#Capture root app directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+
+function error {
+	echo "Error making jar, will now halt"
+	exit 1
+}
+
+echo "Building source..."
+source "$DIR/util/build"
+
+echo "Testing source..."
+source "$DIR/util/test"
+
+echo "Creating /bin"
+#make output directory
+mkdir -p "$DIR/bin"
+
+#go to src dir
+pushd "$DIR/src" > /dev/null
+
+#create a manifest with a default Cli.class invocation
+echo "Main-Class: app.Cli" > manifest-default-class.MF
+
+#jar up project class files
+echo "Placing app.jar in /bin"
+jar cfm "../bin/app.jar" manifest-default-class.MF app/*.class || error
+
+#remove default manifest
+rm manifest-default-class.MF
+
+#go-back to users directory
+popd > /dev/null
+
+echo "Successfully made app.jar!"
