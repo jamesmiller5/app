@@ -8,4 +8,8 @@ function error {
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 
-find "$DIR/src" -name "*.class" | xargs rm 
+echo "Removing .class files"
+find "$DIR"/src -name "*.class" | xargs rm -f || error
+
+echo "Removing bin/*, scratch/*"
+rm -rf "$DIR"/bin/* "$DIR"/scratch/* || error
