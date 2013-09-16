@@ -8,7 +8,8 @@ function error {
 }
 
 #Include dependancies such as jUnit and our code
-export CLASSPATH="$DIR/deps/junit/*:$DIR/deps/neo4j/*:$DIR/deps/jsap/*:$DIR/src"
+export CLASSPATH="$DIR/deps/junit/*:$DIR/deps/neo4j/*:$DIR/deps/asg.cliche/*:$DIR/src"
 
 #compile project classes
+echo "Building app.*, test.* ..."
 find "$DIR/src/" -name "*.java" | xargs javac -Xlint:deprecation || error

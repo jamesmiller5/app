@@ -1,0 +1,8 @@
+#!/bin/bash
+#Capture root app directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+
+source "$DIR"/util/build
+
+#simply invoke Cli passing arguments
+java app.Cli "$@"
