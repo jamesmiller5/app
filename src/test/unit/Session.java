@@ -17,8 +17,6 @@ public class Session {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		cal.add(Calendar.HOUR_OF_DAY, 1);
-		cal.getTime();
-
 		futureDate = cal.getTime();
 	}
 
