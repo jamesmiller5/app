@@ -38,7 +38,7 @@ public class UniqueNodeFactory {
 				@Override
 				protected void initialize( Node created, Map<String, Object> properties ) {
 					created.setProperty( key, properties.get(key) );
-					created.addLabel( LabelDef.UNIQUE );
+					//created.addLabel( LabelDef.UNIQUE );
 				}
 			};
 			tx.success();

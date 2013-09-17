@@ -15,53 +15,39 @@ public class Subject {
 
 	private static final UniqueNodeFactory factory = new UniqueNodeFactory( SUBJECT_KEY, SUBJECT_INDEX );
 
-	private final Label subjectLabel;
-
-	public Subject( final Label subjectLabel ) {
-		this.subjectLabel = subjectLabel;
-	}
+	private final String subject;
 
 	public Subject( final String name ) {
-		GraphDatabaseService graphDb = GraphDatabase.get();
-		try( Transaction tx = graphDb.beginTx() ) {
-			Label subj = DynamicLabel.label( name );
-			this.subjectLabel = subj;
-			getSubjectMaster().addLabel( subj );
-		}
+		this.subject = name;
 	}
 
 	public String getName() {
-		GraphDatabaseService graphDb = GraphDatabase.get();
-		try( Transaction tx = graphDb.beginTx() ) {
-			String name = subjectLabel.name();
-			tx.success();
-			return name;
-		}
+		return this.subject;
 	}
-
-	public static boolean isSubject( final Label subj ) {
+	/*
+	public static boolean isSubject( final String subj ) {
 		GraphDatabaseService graphDb = GraphDatabase.get();
 		try( Transaction tx = graphDb.beginTx() ) {
-			boolean isSub = getSubjectMaster().hasLabel( subj );
+			boolean isSub = getSubjectMaster().hasLabel( DynamicLabel.label(subj) );
 			tx.success();
 			return isSub;
 		}
 	}
-/*
 	public static Subject[] getSubjects() {
 		GraphDatabaseService graphDb = GraphDatabase.get();
 		try( Transaction tx = graphDb.beginTx() ) {
 			ArrayList<Subject> subjects = new ArrayList<Subject>();
 			Node master = getSubjectMaster();
 			for(Label subj : master.getLabels()) {
-				subjects.add(new Subject(subj));
+				subjects.add(new Subject(subj.name()));
 			}
-			return subjects.toArray();
+			tx.success();
+			return subjects.toArray(new Subject[0]);
 		}
 	}
-*/
-	private static Node getSubjectMaster() {
+	public static Node getSubjectMaster() {
 		// code-level factory, Db call internal - internal transaction.
 		return factory.getOrCreate( SUBJECT_IDENT );
 	}
+	*/
 }

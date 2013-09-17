@@ -3,6 +3,8 @@ package app;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.helpers.collection.IterableWrapper;
+import org.neo4j.graphdb.Path;
 import java.util.Date;
 
 public class Citation extends Entity {
@@ -30,6 +32,10 @@ public class Citation extends Entity {
 			tx.success();
 			initialize(node);
 		}
+	}
+
+	public Citation(Node internalNode) {
+		initialize(internalNode);
 	}
 
 	public String getDescription() {
@@ -60,5 +66,16 @@ public class Citation extends Entity {
 
 	private long getTimeUTC() {
 		return new Date().getTime();
+	}
+
+	public static class PathIterableWrapper extends IterableWrapper<Citation, Path> {
+		public PathIterableWrapper(Iterable<Path> iterable) {
+			super(iterable);
+		}
+
+		@Override
+		protected Citation underlyingObjectToObject( Path path ) {
+			return new Citation( path.endNode() );
+		}
 	}
 }
