@@ -16,13 +16,13 @@ public class Session {
 
 		Session s;
 
-		try(Transaction tx = graphDb().beginTx()) {
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			//TODO: query DB using email & password
 			s = new Session(new User(new Email[] { new Email("fart@traf") }), cal.getTime());
 			tx.success();
 		}
 
-		return s
+		return s;
 	}
 
 	public Session(User user, Date validUntil) {
