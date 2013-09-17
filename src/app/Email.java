@@ -2,6 +2,8 @@ package app;
 
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.helpers.collection.IterableWrapper;
+import org.neo4j.graphdb.Path;
 
 public class Email extends Entity {
 	public static final String EMAIL_INDEX = "email";
@@ -55,5 +57,16 @@ public class Email extends Entity {
 		// If doesn't contain '@' sign, not valid.
 		if( address.indexOf('@') < 0 ) return false;
 		return true;
+	}
+
+	public static class PathIterableWrapper extends IterableWrapper<Email, Path> {
+		public PathIterableWrapper(Iterable<Path> iterable) {
+			super(iterable);
+		}
+
+		@Override
+		protected Email underlyingObjectToObject( Path path ) {
+			return new Email( path.endNode() );
+		}
 	}
 }

@@ -29,7 +29,7 @@ public abstract class Entity {
 		return internalNode;
 	}
 
-	public static Node findNodeExisting(Label label, String key, Object value) {
+	public static Node findExistingNode(Label label, String key, Object value) {
 		try(Transaction tx = graphDb().beginTx()) {
 			ResourceIterable<Node> nodes = graphDb().findNodesByLabelAndProperty( label, key, value );
 			Node node = getSingle( nodes );
