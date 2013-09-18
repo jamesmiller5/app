@@ -25,6 +25,10 @@ public class Token {
 		return signature.toString();
 	}
 
+	public static Token randomToken() {
+		return new Token(UUID.randomUUID());
+	}
+
 	private Token( UUID signature ) {
 		this.signature = signature;
 	}

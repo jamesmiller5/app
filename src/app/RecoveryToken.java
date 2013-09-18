@@ -14,4 +14,8 @@ public class RecoveryToken extends Token {
 	public RecoveryToken(String signature) {
 		super(signature);
 	}
+
+	public static RecoveryToken randomToken() {
+		return new RecoveryToken();
+	}
 }
