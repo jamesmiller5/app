@@ -54,6 +54,8 @@ public class Email extends Entity {
 	public User getUser() {
 		try( Transaction tx = graphDb().beginTx() ) {
 			Relationship rel = internalNode.getSingleRelationship(RelType.OWNS, Direction.BOTH);
+			if( rel == null )
+				return null;
 			Node node = rel.getOtherNode( internalNode );
 			tx.success();
 			return new User(node);

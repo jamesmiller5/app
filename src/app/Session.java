@@ -10,9 +10,6 @@ public class Session {
 	public final Date validUntil;
 
 	public static Session createFromLogin( String email, String password ) {
-		if( email == null || password == null || email.length() == 0 || password.length() == 0 )
-			return null;
-
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		cal.add(Calendar.HOUR_OF_DAY, 1);
@@ -31,6 +28,8 @@ public class Session {
 
 			s = new Session( u, cal.getTime());
 			tx.success();
+		} catch( Exception e ) {
+			return null;
 		}
 
 		return s;
