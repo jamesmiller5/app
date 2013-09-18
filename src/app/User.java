@@ -18,11 +18,10 @@ public class User extends Entity {
 		this.internalNode = internalNode;
 	}
 
-	public User(String name) {
+	public User() {
 		GraphDatabaseService graphDb = GraphDatabase.get();
 		try( Transaction tx = graphDb.beginTx() ) {
-			this.internalNode = factory.getOrCreate(name);
-			this.internalNode.addLabel(LabelDef.USER);
+			this.internalNode = graphDb.createNode( LabelDef.USER );
 			tx.success();
 		}
 	}

@@ -25,13 +25,15 @@ public class Session {
 	@Test
 	public void checkExpiration_valid() {
 		// Create new user
-		String uname = "user@example.com";
+		String uemail = "user@example.com";
 		String upass = "password";
 
-		app.User user = new app.User(uname);
+		app.Email email = new app.Email(uemail);
+		app.User user = new app.User();
 		user.setPassword(upass);
+		user.addEmail(email);
 
-		app.Session s = app.Session.createFromLogin(uname, upass);
+		app.Session s = app.Session.createFromLogin(uemail, upass);
 		assertTrue(s.isValid());
 	}
 
