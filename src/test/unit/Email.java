@@ -17,22 +17,37 @@ public class Email {
 		app.GraphDatabase.shutdown();
 	}
 
-	//We expect this to throw an exception
 	@Test(expected=IllegalArgumentException.class)
 	public void isValid_null_exception() {
 		app.Email isNull = new app.Email((String)null);
 	}
 
-	//We expect this to throw an exception
 	@Test(expected=IllegalArgumentException.class)
 	public void isValid_blank_exception() {
 		app.Email isBlank = new app.Email("");
 	}
 
-	//We expect this to throw an exception
 	@Test(expected=IllegalArgumentException.class)
 	public void isValid_no_at_sign_exception() {
 		app.Email isBlank = new app.Email("aazz");
+	}
+
+	//We expect this to throw an exception
+	@Test(expected=IllegalArgumentException.class)
+	public void isValid_only_at_sign_exception() {
+		app.Email atOnly = new app.Email("@");
+	}
+
+	//We expect this to throw an exception
+	@Test(expected=IllegalArgumentException.class)
+	public void isValid_at_is_at_end() {
+		app.Email atEnd = new app.Email("foo@");
+	}
+
+	//We expect this to throw an exception
+	@Test(expected=IllegalArgumentException.class)
+	public void isValid_at_is_at_front() {
+		app.Email atFront = new app.Email("@example.com");
 	}
 
 	@Test

@@ -75,12 +75,16 @@ public abstract class GraphDatabase {
     public static void clearDb() {
 		//shutdown db first
 		shutdown();
-
-        try {
-           	FileUtils.deleteRecursively( new File( DB_NAME ) );
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
+		IOException rt = null;
+		for(int i=0; i<20; i++) {
+		    try {
+		       	FileUtils.deleteRecursively( new File( DB_NAME ) );
+		       	return;
+		    } catch ( IOException e ) {
+				rt = e;		    
+			}
         }
+        throw new RuntimeException( rt );
     }
 
     private static void registerShutdownHook( final GraphDatabaseService graphDb ) {

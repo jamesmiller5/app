@@ -51,11 +51,12 @@ public class Email extends Entity {
 
 	public static boolean isValidAddress(String address) {
 		//TODO: more complicated regex
-		// If empty Address, not valid
-		if( address == null || address.length()==0 ) return false;
+		// If empty Address or only an '@', not valid
+		if( address == null || address.length() <= 1 ) return false;
 
-		// If doesn't contain '@' sign, not valid.
-		if( address.indexOf('@') < 0 ) return false;
+
+		// If doesn't contain '@' sign or the '@' is at the front or at the end, not valid.
+		if( address.indexOf('@') <= 0 || address.lastIndexOf('@') == (address.length() - 1) ) return false;
 		return true;
 	}
 

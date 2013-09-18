@@ -1,3 +1,4 @@
 *.class
 .*.sw?
 scratch
+bin
