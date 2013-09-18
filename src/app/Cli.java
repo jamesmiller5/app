@@ -99,21 +99,37 @@ public class Cli {
 
 	@Command
 	public Result addEmail( String session_id, String ct ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
 		return null;
 	}
 
 	@Command
 	public Result removeEmail( String session_id, String email ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
 		return null;
 	}
 
 	@Command
 	public Result addToPorfolio( String session_id, String cit ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
 		return null;
 	}
 
 	@Command
 	public Result removeFromPorfolio( String session_id, String cit ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
 		return null;
 	}
 
@@ -124,16 +140,28 @@ public class Cli {
 
 	@Command
 	public Result trust( String session_id, String subject, String... citations ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
 		return null;
 	}
 
 	@Command
 	public Result untrust( String session_id, String trustEdge ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
 		return null;
 	}
 
 	@Command
 	public Result viewSubjectiveNetwork( String session_id, String subject, int threshold ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
 		return null;
 	}
 
@@ -155,5 +183,4 @@ public class Cli {
 				        sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
 			     return sb.toString();
 	}
-
 }
