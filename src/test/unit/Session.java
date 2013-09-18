@@ -35,4 +35,13 @@ public class Session {
 		assertTrue(s.isValid());
 	}
 
+	@Test
+	public void checkExpiration_noSuchUser() {
+		// Create new user
+		String uname = "user@example.com";
+		String upass = "password";
+
+		app.Session s = app.Session.createFromLogin(uname, upass);
+		assertNull(s);
+	}
 }

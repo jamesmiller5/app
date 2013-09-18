@@ -38,7 +38,7 @@ public class User extends Entity {
 	public String getPassword() {
 		GraphDatabaseService graphDb = GraphDatabase.get();
 		try( Transaction tx = graphDb.beginTx() ) {
-			String password = (String) getInternalNode().getProperty( USERNAME, null );
+			String password = (String) getInternalNode().getProperty(PASSWORD, null );
 			tx.success();
 			return password;
 		}

@@ -2,6 +2,8 @@ package app;
 
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.graphdb.Path;
 
@@ -49,6 +51,14 @@ public class Email extends Entity {
 		return new ClaimToken( signature );
 	}
 
+	public User getUser() {
+		try( Transaction tx = graphDb().beginTx() ) {
+			Relationship rel = internalNode.getSingleRelationship(RelType.OWNS, Direction.BOTH);
+			Node node = rel.getOtherNode( internalNode );
+			tx.success();
+			return new User(node);
+		}
+	}
 	public static boolean isValidAddress(String address) {
 		//TODO: more complicated regex
 		// If empty Address or only an '@', not valid

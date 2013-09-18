@@ -21,7 +21,7 @@ public class Session {
 			s = new Session(new User(email), cal.getTime());
 			if( password == null
 					|| s.user.getPassword() == null
-					|| password.equals(s.user.getPassword())) {
+					|| !password.equals(s.user.getPassword())) {
 				return null;
 			}
 			tx.success();
