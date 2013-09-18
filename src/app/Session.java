@@ -10,6 +10,9 @@ public class Session {
 	public final Date validUntil;
 
 	public static Session createFromLogin( String email, String password ) {
+		if( email == null || password == null || email.length() == 0 || password.length() == 0 )
+			return null;
+
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		cal.add(Calendar.HOUR_OF_DAY, 1);
@@ -17,13 +20,16 @@ public class Session {
 		Session s;
 
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
-			//TODO: query DB using email & password
-			s = new Session(new User(email), cal.getTime());
-			if( password == null
-					|| s.user.getPassword() == null
-					|| !password.equals(s.user.getPassword())) {
+			Email e = new Email(email);
+			User u = e.getUser();
+			if( u == null )
+				return null;
+
+			if( !password.equals(u.getPassword())) {
 				return null;
 			}
+
+			s = new Session( u, cal.getTime());
 			tx.success();
 		}
 
