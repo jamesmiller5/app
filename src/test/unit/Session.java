@@ -9,17 +9,11 @@ import org.neo4j.graphdb.Transaction;
  * Unit test for {@link app.Session}.
  */
 public class Session {
-	Date futureDate;
-	@Before
-	public void setup() {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date());
-		cal.add(Calendar.HOUR_OF_DAY, 1);
-		futureDate = cal.getTime();
-	}
 
+	@Before
 	@After
-	public void teardown() {
+	public void clearDb() {
+		app.GraphDatabase.clearDb();
 	}
 
 	@Test

@@ -16,13 +16,9 @@ import java.util.Iterator;
  */
 public class RelationshipFactory {
 	@Before
-	public void setup() {
-		DatabaseTester.clearDb();
-	}
-
 	@After
-	public void teardown() {
-		app.GraphDatabase.shutdown();
+	public void clearDb() {
+		app.GraphDatabase.clearDb();
 	}
 
 	@Test

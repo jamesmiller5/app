@@ -12,11 +12,9 @@ public class Citation {
 	app.Citation c;
 
 	@Before
-	public void setup() {
-	}
-
 	@After
-	public void teardown() {
+	public void clearDb() {
+		app.GraphDatabase.clearDb();
 	}
 
 	@Test (expected=IllegalArgumentException.class)

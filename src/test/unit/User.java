@@ -10,11 +10,9 @@ public class User {
 	app.User u;
 
 	@Before
-	public void setup() {
-	}
-
 	@After
-	public void teardown() {
+	public void clearDb() {
+		app.GraphDatabase.clearDb();
 	}
 
 	@Test

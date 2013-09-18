@@ -7,14 +7,10 @@ import org.junit.*;
  * Unit test for {@link app.Email}.
  */
 public class Email {
-	@Before
-	public void setup() {
-		DatabaseTester.clearDb();
-	}
-
 	@After
-	public void teardown() {
-		app.GraphDatabase.shutdown();
+	@Before
+	public void clearDb() {
+		app.GraphDatabase.clearDb();
 	}
 
 	@Test(expected=IllegalArgumentException.class)
