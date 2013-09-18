@@ -98,5 +98,4 @@ public class TrustEdge extends Entity {
 			tx.success();
 		}
 	}
-
 }
