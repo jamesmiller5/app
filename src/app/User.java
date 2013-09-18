@@ -8,8 +8,11 @@ import org.neo4j.graphdb.traversal.*;
 import org.neo4j.kernel.Traversal;
 
 public class User extends Entity {
+	public static final String USER_INDEX = "User";
 	public static final String USERNAME = "Username";
 	public static final String PASSWORD = "Password";
+
+	private static UniqueNodeFactory factory = new UniqueNodeFactory( USERNAME, USER_INDEX );
 
 	public User(Node internalNode) {
 		this.internalNode = internalNode;
@@ -18,7 +21,7 @@ public class User extends Entity {
 	public User(String name) {
 		GraphDatabaseService graphDb = GraphDatabase.get();
 		try( Transaction tx = graphDb.beginTx() ) {
-			this.internalNode = null;
+			this.internalNode = factory.getOrCreate(name);
 			this.internalNode.addLabel(LabelDef.USER);
 			tx.success();
 		}
@@ -35,7 +38,7 @@ public class User extends Entity {
 	public String getPassword() {
 		GraphDatabaseService graphDb = GraphDatabase.get();
 		try( Transaction tx = graphDb.beginTx() ) {
-			String password = (String) getInternalNode().getProperty( USERNAME );
+			String password = (String) getInternalNode().getProperty( USERNAME, null );
 			tx.success();
 			return password;
 		}
