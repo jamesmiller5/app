@@ -11,8 +11,10 @@ public abstract class Entity {
 	protected void initialize(Node internalNode) {
 		try(Transaction tx = graphDb().beginTx()) {
 			this.internalNode = internalNode;
-			this.internalNode.addLabel(LabelDef.ENTITY);
-			this.internalNode.setProperty(GUID, Token.randomToken().toString());
+			if( !this.internalNode.hasLabel(LabelDef.ENTITY) ) {
+				this.internalNode.addLabel(LabelDef.ENTITY);
+				this.internalNode.setProperty(GUID, Token.randomToken().toString());
+			}
 			tx.success();
 		}
 	}
