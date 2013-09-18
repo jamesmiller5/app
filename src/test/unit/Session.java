@@ -4,14 +4,12 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import java.util.Date;
 import java.util.Calendar;
-
+import org.neo4j.graphdb.Transaction;
 /**
  * Unit test for {@link app.Session}.
  */
 public class Session {
-	app.Session s;
 	Date futureDate;
-
 	@Before
 	public void setup() {
 		Calendar cal = Calendar.getInstance();
@@ -22,12 +20,18 @@ public class Session {
 
 	@After
 	public void teardown() {
-		s = null;
 	}
 
 	@Test
-	public void checkExpiration() {
-		s = new app.Session(new app.User(new app.Email[] { new app.Email("fart@traf") }), futureDate);
+	public void checkExpiration_valid() {
+		// Create new user
+		String uname = "user@example.com";
+		String upass = "password";
+
+		app.User user = new app.User(uname);
+		user.setPassword(upass);
+
+		app.Session s = app.Session.createFromLogin(uname, upass);
 		assertTrue(s.isValid());
 	}
 
