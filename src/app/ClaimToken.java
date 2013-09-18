@@ -14,4 +14,8 @@ public class ClaimToken extends Token {
 	public ClaimToken(String signature) {
 		super(signature);
 	}
+
+	public static ClaimToken randomToken() {
+		return new ClaimToken();
+	}
 }

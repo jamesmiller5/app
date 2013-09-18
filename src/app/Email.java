@@ -23,7 +23,6 @@ public class Email extends Entity {
 			// New email, not associated with a User yet so add Claim Token
 			if( !internalNode.hasLabel(LabelDef.EMAIL) ) {
 				internalNode.addLabel(LabelDef.EMAIL);
-				internalNode.setProperty(CLAIM_TOKEN, new ClaimToken().toString());
 			}
 			tx.success();
 		}
@@ -42,13 +41,26 @@ public class Email extends Entity {
 	}
 
 	public ClaimToken getClaimToken() {
-		String signature;
+		if( getUser() != null ) return null;
 		try( Transaction tx = graphDb().beginTx() ) {
-			signature = (String) internalNode.getProperty( CLAIM_TOKEN, null );
+			String signature;
+
+			if( !internalNode.hasProperty(CLAIM_TOKEN) ) {
+				internalNode.setProperty(CLAIM_TOKEN,
+						new ClaimToken().toString());
+			}
+			signature = (String) internalNode.getProperty( CLAIM_TOKEN );
+			tx.success();
+
+			return new ClaimToken( signature );
+		}
+	}
+
+	public void clearClaimToken() {
+		try( Transaction tx = graphDb().beginTx() ) {
+			internalNode.removeProperty( CLAIM_TOKEN );
 			tx.success();
 		}
-		if( signature == null ) return null;
-		return new ClaimToken( signature );
 	}
 
 	public User getUser() {
