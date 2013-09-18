@@ -18,7 +18,10 @@ public class Session {
 
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			//TODO: query DB using email & password
-			s = new Session(new User(new Email[] { new Email("fart@traf") }), cal.getTime());
+			s = new Session(new User(email));
+			if( s.user.getPassword() == null ||  s.user.getPassword() != password ) {
+				return null;
+			}
 			tx.success();
 		}
 
