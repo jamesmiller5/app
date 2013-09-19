@@ -36,7 +36,7 @@ public class Cli {
 
 	private Result validateSession( String session_id ) {
 		if( !session_table.containsKey( session_id ) )
-			return new Result(false, "Invalid Session");
+			return new Result(false, "invalid session");
 
 		Session s = session_table.get(session_id);
 		if( !s.isValid() ) {
@@ -98,12 +98,15 @@ public class Cli {
 	}
 
 	@Command
-	public Result addEmail( String session_id, String ct ) {
+	public Result addEmail( String session_id, String email) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
 
-		return null;
+		Session session = res.session;
+		session.user.addEmail(new Email(email));
+
+		return new Result(true, "Email Added");
 	}
 
 	@Command
@@ -112,7 +115,10 @@ public class Cli {
 		if( !res.success )
 			return res;
 
-		return null;
+		Session session = res.session;
+		session.user.addEmail(new Email(email));
+
+		return new Result(true, "Email Removed");
 	}
 
 	@Command
