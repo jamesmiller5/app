@@ -33,10 +33,11 @@ public class TrustEdge extends Entity {
 		try( Transaction tx = graphDb.beginTx() ) {
 			TraversalDescription traversal = Traversal.description()
 				.depthFirst()
+				.evaluator(Evaluators.fromDepth(1))
 				.evaluator(Evaluators.toDepth(1))
 				.relationships( RelType.REASON );
 
-			Traverser paths = traversal.traverse();
+			Traverser paths = traversal.traverse(internalNode);
 			tx.success();
 			return new Citation.PathIterableWrapper(paths);
 		}
