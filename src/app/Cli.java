@@ -94,7 +94,7 @@ public class Cli {
 			e = new Email(email);
 			return (new Result(true, e.getClaimToken().toString()));
 		}
-		
+
 		if(e.getClaimToken() == null)
 			return (new Result(false, "email claimed"));
 		else
@@ -106,7 +106,7 @@ public class Cli {
 		GraphDatabaseService graphDB = GraphDatabase.get();
 		try(Transaction tx = graphDB.beginTx()) {
 			//ResourceIterable<Node> email_nodes = graphDB.findNodesByLabelAndProperty(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct);
-			
+
 			Email email = null;
 			try {
 				email = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct));
@@ -121,7 +121,7 @@ public class Cli {
 
 			tx.success();
 			return (new Result(true, "added email to user?"));
-			
+
 		}
 	}
 
@@ -171,25 +171,30 @@ public class Cli {
 	}
 
 	@Command
-	public Result addToPorfolio( String session_id, String cit ) {
+	public Result addToPorfolio( String session_id, String description, String resource ) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
-		String description = "description";
-		String resource = "resource";
+
 		Citation c = new Citation(description, resource);
+
+		Session session = res.session;
 		session.user.addToPortfolio(c);
-		return null;
+
+		return new Result(true, "Citation Added");
 	}
 
 	@Command
 	public Result removeFromPorfolio( String session_id, String cit ) {
-		Result res = validateSession( session_id );
-		if( !res.success ) {
 
-			return res;
-		}
-		return null;
+			Result res = validateSession( session_id );
+			if( !res.success ){
+
+				return res;
+			}
+			Citation c = new Citation(new Token(cit));
+
+			return null;
 	}
 
 	@Command
@@ -197,12 +202,12 @@ public class Cli {
 		//find Email for Email. call email.getUser() to get User.
 		//then call user.viewPortfolio which returns an iterator
 		//over the citations, all of which i want to print
-		Email e = new Email(email);
-		if (e.getUser() == null) {
-			//not found
-			return new Result(false, "Invalid Email no profile associated");
-		}
-		else {
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
+			Email e = new Email(email);
+			if (e.getUser() == null) {
+				//not found
+				return new Result(false, "Invalid Email no profile associated");
+			}
 			User user = e.getUser();
 			Iterator<Citation> iterator = user.viewPortfolio().iterator();
 			StringBuilder output = new StringBuilder();
@@ -211,8 +216,9 @@ public class Cli {
 				output.append(c.toString());
 			}
 
-			return new Result(true , output.toString());
 
+			tx.success();
+			return new Result(true , output.toString());
 		}
 	}
 
@@ -256,9 +262,9 @@ public class Cli {
 	static Random rnd = new Random();
 
 	private String randomString( int len ) {
-		   StringBuilder sb = new StringBuilder( len );
-		      for( int i = 0; i < len; i++ )
-				        sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
-			     return sb.toString();
+		StringBuilder sb = new StringBuilder( len );
+		for( int i = 0; i < len; i++ )
+			sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+		return sb.toString();
 	}
 }

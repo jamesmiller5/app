@@ -84,6 +84,6 @@ public class Citation extends Entity {
 	}
 
 	public String toString() {
-		return "{" + getDescription() + ":" + getResource() + ":" + getDateCreated()+ "}";
+		return "{" + getDescription() + ":" + getResource() + ":" + getDateCreated()+ ":" + getId()+ "}";
 	}
 }
