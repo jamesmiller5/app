@@ -132,7 +132,7 @@ public class Cli {
 			return res;
 
 		Session session = res.session;
-		session.user.addEmail(new Email(email));
+		session.user.removeEmail(new Email(email));
 
 		return new Result(true, "Email Removed");
 	}
