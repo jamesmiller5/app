@@ -7,12 +7,20 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.graphdb.Path;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Email extends Entity {
 	public static final String EMAIL_INDEX = "email";
 	public static final String EMAIL_KEY = "address";
 	public static final String CLAIM_TOKEN = "claimtoken";
 
 	private static UniqueNodeFactory factory = new UniqueNodeFactory( EMAIL_KEY, EMAIL_INDEX );
+
+	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+	    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+	private static Pattern pattern = Pattern.compile(EMAIL_PATTERN);
 
 	public Email( final String address ) {
 		if( !Email.isValidAddress( address ) ) {
@@ -74,14 +82,14 @@ public class Email extends Entity {
 		}
 	}
 	public static boolean isValidAddress(String address) {
-		//TODO: more complicated regex
 		// If empty Address or only an '@', not valid
 		if( address == null || address.length() <= 1 ) return false;
 
 
-		// If doesn't contain '@' sign or the '@' is at the front or at the end, not valid.
-		if( address.indexOf('@') <= 0 || address.lastIndexOf('@') == (address.length() - 1) ) return false;
-		return true;
+		// Match against email regex to determine validity
+		Matcher matcher = pattern.matcher(address);
+		
+		return matcher.matches();
 	}
 
 	public static class PathIterableWrapper extends IterableWrapper<Email, Path> {

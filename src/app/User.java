@@ -65,10 +65,11 @@ public class User extends Entity {
 		try( Transaction tx = graphDb.beginTx() ) {
 			TraversalDescription traversal = Traversal.description()
 				.depthFirst()
+				.evaluator(Evaluators.fromDepth(1))
 				.evaluator(Evaluators.toDepth(1))
 				.relationships( RelType.PORTFOLIO );
 
-			Traverser paths = traversal.traverse();
+			Traverser paths = traversal.traverse(internalNode);
 			tx.success();
 			return new Citation.PathIterableWrapper(paths);
 		}
@@ -97,9 +98,10 @@ public class User extends Entity {
 			TraversalDescription traversal = Traversal.description()
 				.depthFirst()
 				.evaluator(Evaluators.toDepth(1))
+				.evaluator(Evaluators.fromDepth(1))
 				.relationships( RelType.OWNS );
 
-			Traverser paths = traversal.traverse();
+			Traverser paths = traversal.traverse(internalNode);
 			tx.success();
 			return new Email.PathIterableWrapper(paths);
 		}

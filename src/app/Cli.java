@@ -130,21 +130,43 @@ public class Cli {
 	}
 
 	@Command
-	public Result addEmail( String session_id, String ct ) {
+	public Result registerEmail( String session_id, String address) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
 
-		return null;
+		Email email = new Email(address);
+
+		return new Result(true, "Email Claim Token - " + email.getClaimToken());
 	}
 
 	@Command
-	public Result removeEmail( String session_id, String email ) {
+	public Result addEmail( String session_id, String address, String ct) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
 
-		return null;
+		Email email = new Email(address);
+
+		if( !(email.getClaimToken().equals(ct)) )
+			return new Result(false, "Invalid Email Claim Token");
+
+		Session session = res.session;
+		session.user.addEmail(email);
+
+		return new Result(true, "Email Added");
+	}
+
+	@Command
+	public Result deleteEmail( String session_id, String email ) {
+		Result res = validateSession( session_id );
+		if( !res.success )
+			return res;
+
+		Session session = res.session;
+		session.user.removeEmail(new Email(email));
+
+		return new Result(true, "Email Removed");
 	}
 
 	@Command
