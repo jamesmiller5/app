@@ -82,4 +82,8 @@ public class Citation extends Entity {
 			return new Citation( path.endNode() );
 		}
 	}
+
+	public String toString() {
+		return "{" + getDescription() + ":" + getResource() + ":" + getDateCreated()+ "}";
+	}
 }

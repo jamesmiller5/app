@@ -8,6 +8,7 @@ import asg.cliche.InputConverter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Iterator;
 
 public class Cli {
 
@@ -174,22 +175,45 @@ public class Cli {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
-
+		String description = "description";
+		String resource = "resource";
+		Citation c = new Citation(description, resource);
+		session.user.addToPortfolio(c);
 		return null;
 	}
 
 	@Command
 	public Result removeFromPorfolio( String session_id, String cit ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
-			return res;
+		if( !res.success ) {
 
+			return res;
+		}
 		return null;
 	}
 
 	@Command
 	public Result viewPortfolio( String email ) {
-		return null;
+		//find Email for Email. call email.getUser() to get User.
+		//then call user.viewPortfolio which returns an iterator
+		//over the citations, all of which i want to print
+		Email e = new Email(email);
+		if (e.getUser() == null) {
+			//not found
+			return new Result(false, "Invalid Email no profile associated");
+		}
+		else {
+			User user = e.getUser();
+			Iterator<Citation> iterator = user.viewPortfolio().iterator();
+			StringBuilder output = new StringBuilder();
+			while (iterator.hasNext()) {
+				Citation c = iterator.next();
+				output.append(c.toString());
+			}
+
+			return new Result(true , output.toString());
+
+		}
 	}
 
 	@Command
