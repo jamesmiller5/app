@@ -36,7 +36,7 @@ public class Cli {
 
 	private Result validateSession( String session_id ) {
 		if( !session_table.containsKey( session_id ) )
-			return new Result(false, "Invalid session");
+			return new Result(false, "Invalid Session");
 
 		Session s = session_table.get(session_id);
 		if( !s.isValid() ) {
