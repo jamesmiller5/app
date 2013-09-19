@@ -38,6 +38,10 @@ public class Citation extends Entity {
 		initialize(internalNode);
 	}
 
+	public Citation(Token id) {
+		initialize(nodeByID(id));
+	}
+
 	public String getDescription() {
 		// No description parameter is an illegal state
 		try( Transaction tx = graphDb().beginTx() ) {

@@ -6,8 +6,17 @@ import org.neo4j.graphdb.index.*;
 public abstract class Entity {
 	protected Node internalNode;
 
+	private static final String GUID = "Guid";
+
 	protected void initialize(Node internalNode) {
-		this.internalNode = internalNode;
+		try(Transaction tx = graphDb().beginTx()) {
+			this.internalNode = internalNode;
+			if( !this.internalNode.hasLabel(LabelDef.ENTITY) ) {
+				this.internalNode.addLabel(LabelDef.ENTITY);
+				this.internalNode.setProperty(GUID, Token.randomToken().toString());
+			}
+			tx.success();
+		}
 	}
 
 	public Relationship createRelationshipTo(Entity other, RelType type) {
@@ -29,6 +38,14 @@ public abstract class Entity {
 		return internalNode;
 	}
 
+	public Token getId() {
+		try(Transaction tx = graphDb().beginTx()) {
+			String guid = (String)internalNode.getProperty(GUID);
+			tx.success();
+			return new Token(guid);
+		}
+	}
+
 	public static Node findExistingNode(Label label, String key, Object value) {
 		try(Transaction tx = graphDb().beginTx()) {
 			ResourceIterable<Node> nodes = graphDb().findNodesByLabelAndProperty( label, key, value );
@@ -36,5 +53,9 @@ public abstract class Entity {
 			tx.success();
 			return node;
 		}
+	}
+
+	protected static Node nodeByID(Token token) {
+		return findExistingNode(LabelDef.ENTITY, GUID, token.toString());
 	}
 }

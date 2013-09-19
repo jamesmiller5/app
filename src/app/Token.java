@@ -15,7 +15,7 @@ public class Token {
 
 	@Override
 	public boolean equals(Object obj) {
-		if( obj instanceof ClaimToken ) {
+		if( obj instanceof Token ) {
 			return this.signature.equals(((Token)obj).signature);
 		}
 		return false;
@@ -23,6 +23,10 @@ public class Token {
 	@Override
 	public String toString() {
 		return signature.toString();
+	}
+
+	public static Token randomToken() {
+		return new Token(UUID.randomUUID());
 	}
 
 	private Token( UUID signature ) {

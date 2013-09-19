@@ -35,4 +35,13 @@ public class Citation {
 		c = new app.Citation(r, "test");
 	}
 
+	@Test
+	public void recoverByID() {
+		app.Citation c = new app.Citation("Test","http://example/test");
+		app.Token id = c.getId();
+		app.Citation b = new app.Citation(id);
+		assertEquals( c.getId(), b.getId() );
+		assertEquals( c.getInternalNode(), b.getInternalNode() );
+
+	}
 }
