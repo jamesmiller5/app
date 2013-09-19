@@ -24,14 +24,19 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 	- Session will go stale (expire) after a certain amount of time.
 
 - logout( Session )
-	- Expires session immediately 
+	- Expires session immediately
 	
-- addEmail( Session, ClaimToken ) 
+- registerEmail( Session, EmailAddress )
 	- Requires a valid session
-	- Adds email to <User>
+	- Adds the email to the database without assigning it to a User
+	- Returns the ClaimToken used to add the given email to a User
+	
+- addEmail( Session, EmailAddress, ClaimToken ) 
+	- Requires a valid session
+	- Adds email to <User> if the given ClaimToken matches
 	- Merges email's trust links with Session.User (Merges <TrustNode>s)
 	
-- removeEmail( Session, email )
+- removeEmail( Session, EmailAddress )
 	- Requires a valid session
 	- Removes email from the <User> list of emails
 	- <TrustEdge>'s are NOT lost, they continue to trust the same <User>
