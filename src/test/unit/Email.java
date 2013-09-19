@@ -65,9 +65,9 @@ public class Email {
 
 	@Test
 	public void checkNoDuplicate() {
-		app.Email sameEmail1 = new app.Email("aa@aa");
-		app.Email sameEmail2 = new app.Email("aa@aa");
-		app.Email diffEmail  = new app.Email("bb@bb");
+		app.Email sameEmail1 = new app.Email("foo@example.com");
+		app.Email sameEmail2 = new app.Email("foo@example.com");
+		app.Email diffEmail  = new app.Email("diff@example.com");
 
 		assertEquals( sameEmail1.getClaimToken(), sameEmail2.getClaimToken() );
 		assertFalse(  diffEmail.getClaimToken().equals(sameEmail1.getClaimToken()) );
