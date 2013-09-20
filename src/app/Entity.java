@@ -52,6 +52,7 @@ public abstract class Entity {
 				r.delete();
 			}
 			internalNode.delete();
+			tx.success();
 		}
 	}
 
