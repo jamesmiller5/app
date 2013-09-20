@@ -17,6 +17,17 @@ public class Citation {
 		app.GraphDatabase.clearDb();
 	}
 
+	public void createUser(){
+		String uemail = "user@example.com";
+		String upass = "password";
+		app.Email email = new app.Email(uemail);
+		app.User user = new app.User();
+		user.setPassword(upass);
+		user.addEmail(email);
+		app.Session s = app.Session.createFromLogin(uemail, upass);
+
+	}
+
 	@Test (expected=IllegalArgumentException.class)
 	public void excessiveDescription() {
 		char[] array = new char[257];
