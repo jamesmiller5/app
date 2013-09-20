@@ -239,19 +239,19 @@ public class Cli {
 	}
 
 	@Command					//shouldn't this have an entity arg?
-	public Result trust( String session_id, String subject, String... citations ) {
-		Result res = validateSession( session_id );
-		if( !res.success ){
-			return res;
-		}
-		GraphDatabaseService gdb=app.GraphDatabase.get();
-        try(Transaction tx=gdb.beginTx()){	
-        	//something involved with making a TrustEdge
-        
-        }
+		public Result trust( String session_id, String subject, String... citations ) {
+			Result res = validateSession( session_id );
+			if( !res.success ){
+				return res;
+			}
+			GraphDatabaseService gdb=app.GraphDatabase.get();
+			try(Transaction tx=gdb.beginTx()){
+				//something involved with making a TrustEdge
 
-		return new Result(true,"");
-	}
+			}
+
+			return new Result(true,"");
+		}
 
 	@Command
 	public Result untrust( String session_id, String trustEdge ) {
@@ -260,14 +260,14 @@ public class Cli {
 			return res;
 		}
 		GraphDatabaseService gdb=app.GraphDatabase.get();
-        try(Transaction tx=gdb.beginTx()){	
-        	//something involved with removing a TrustEdge
-        
-        }
+		try(Transaction tx=gdb.beginTx()){
+			//something involved with removing a TrustEdge
+
+		}
 
 		return null;
 	}
-	
+
 	/*
 	 * prints all users who are trusted by the logged in user
 	 * in the subject passed to the function
@@ -280,7 +280,7 @@ public class Cli {
 			return res;
 		}
 		GraphDatabaseService gdb=app.GraphDatabase.get();
-        try(Transaction tx=gdb.beginTx()){	
+		try(Transaction tx=gdb.beginTx()){
 			Session s=session_table.get(session_id);
 			User me=s.user;
 			Node start=me.getInternalNode();
@@ -316,14 +316,13 @@ public class Cli {
 									break;
 								}
 							}
-						}	
+						}
 						break;
 					}
 				}
 			}
-		
-        }
-                return new Result(true,"");
+		}
+		return new Result(true,"");
 	}
 
 	/*
@@ -335,9 +334,9 @@ public class Cli {
 	@Command
 	public Result viewTrustNetwork( String email ) {
 		GraphDatabaseService gdb=app.GraphDatabase.get();
-                try(Transaction tx=gdb.beginTx()){
-                	Email e2=new Email(email);
-                	User me=e2.getUser();
+		try(Transaction tx=gdb.beginTx()){
+			Email e2=new Email(email);
+			User me=e2.getUser();
 			Node start=me.getInternalNode();
 			LinkedList q=new LinkedList();
 			LinkedList mark=new LinkedList();
@@ -367,14 +366,14 @@ public class Cli {
 									break;
 								}
 							}
-						}	
+						}
 						break;
 					}
 				}
 			}
-		
-                }
-                return new Result(true,"");
+
+		}
+		return new Result(true,"");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -406,6 +405,4 @@ public class Cli {
 		}
 		return "";
 	}
-
 }
-
