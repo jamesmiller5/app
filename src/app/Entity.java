@@ -46,6 +46,19 @@ public abstract class Entity {
 		}
 	}
 
+	public void delete() {
+		try(Transaction tx = graphDb().beginTx()) {
+			for(Relationship r : internalNode.getRelationships()) {
+				r.delete();
+			}
+			internalNode.delete();
+		}
+	}
+
+	public boolean exists() {
+		return internalNode != null;
+	}
+
 	public static Node findExistingNode(Label label, String key, Object value) {
 		try(Transaction tx = graphDb().beginTx()) {
 			ResourceIterable<Node> nodes = graphDb().findNodesByLabelAndProperty( label, key, value );
