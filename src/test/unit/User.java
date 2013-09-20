@@ -26,9 +26,9 @@ public class User {
 		try(Transaction tx = graphDb.beginTx()) {
 			app.User user = new app.User();
 			app.Email email;
-			email= new app.Email("test@test");
+			email= new app.Email("test@test.com");
 			user.addEmail(email);
-			email = new app.Email("2@2");
+			email = new app.Email("2@2.com");
 			user.addEmail(email);
 			System.out.println("Testing emails");
 			for(app.Email e : user.viewEmails()) {
