@@ -46,4 +46,30 @@ public class Portfolio {
 		}
 	}
 
+	@Test
+	public void check_addAndDeletePortfolio() {
+		try(Transaction tx = app.GraphDatabase.get().beginTx()) {
+			String uemail = "user@example.com";
+			String upass = "password";
+			app.Email email = new app.Email(uemail);
+			app.User user = new app.User();
+			user.setPassword(upass);
+			user.addEmail(email);
+			app.Citation[] array = new app.Citation[] { new app.Citation("blah", "bloo"), new app.Citation("boppidee", "bbbb"),
+				new app.Citation("hehe", "haha"), new app.Citation("heehaw", "meemaw")};
+			for (app.Citation c : array) {
+				user.addToPortfolio(c);
+			}
+			Iterator<app.Citation> iterator = user.viewPortfolio().iterator();
+			assertTrue(iterator.hasNext());
+			while (iterator.hasNext() ) {
+				app.Citation cGet = iterator.next();
+				user.removeFromPortfolio(cGet);
+			}
+			Iterator<app.Citation> iteratorCheck = user.viewPortfolio().iterator();
+			assertFalse(iteratorCheck.hasNext());
+			tx.success();
+		}
+	}
+
 }

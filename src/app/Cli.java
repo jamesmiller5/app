@@ -198,15 +198,17 @@ public class Cli {
 
 	@Command
 	public Result removeFromPorfolio( String session_id, String cit ) {
-
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Result res = validateSession( session_id );
 			if( !res.success ){
 
 				return res;
 			}
 			Citation c = new Citation(new Token(cit));
-
+			c.delete();
+			tx.success();
 			return null;
+		}
 	}
 
 	@Command
