@@ -185,7 +185,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result addToPorfolio( String session_id, String description, String resource ) {
+	public Result addToPorftolio( String session_id, String description, String resource ) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
@@ -199,7 +199,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result removeFromPorfolio( String session_id, String cit ) {
+	public Result removeFromPorftolio( String session_id, String cit ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Result res = validateSession( session_id );
 			if( !res.success ){
