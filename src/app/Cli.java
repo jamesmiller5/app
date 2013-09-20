@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Iterator;
+import java.util.Queue;
+import java.util.LinkedList;
 import org.neo4j.kernel.Traversal;
 import org.neo4j.graphdb.traversal.*;
 import org.neo4j.graphdb.*;
@@ -236,50 +238,143 @@ public class Cli {
 		}
 	}
 
-	@Command
+	@Command					//shouldn't this have an entity arg?
 	public Result trust( String session_id, String subject, String... citations ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ){
 			return res;
+		}
+		GraphDatabaseService gdb=app.GraphDatabase.get();
+        try(Transaction tx=gdb.beginTx()){	
+        	//something involved with making a TrustEdge
+        
+        }
 
-		return null;
+		return new Result(true,"");
 	}
 
 	@Command
 	public Result untrust( String session_id, String trustEdge ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ){
 			return res;
+		}
+		GraphDatabaseService gdb=app.GraphDatabase.get();
+        try(Transaction tx=gdb.beginTx()){	
+        	//something involved with removing a TrustEdge
+        
+        }
 
 		return null;
 	}
+	
+	/*
+	 * prints all users who are trusted by the logged in user
+	 * in the subject passed to the function
+	 */
 
 	@Command
 	public Result viewSubjectiveNetwork( String session_id, String subject, int threshold ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ){
 			return res;
+		}
+		GraphDatabaseService gdb=app.GraphDatabase.get();
+        try(Transaction tx=gdb.beginTx()){	
+			Session s=session_table.get(session_id);
+			User me=s.user;
+			Node start=me.getInternalNode();
+			LinkedList q=new LinkedList();
+			LinkedList mark=new LinkedList();
+			int depth=0;
 
-		return null;
+			//BFS
+			q.addFirst(start);
+			for(Email e:new User(start).viewEmails()){
+				mark.add(e.getAddress());
+				break;
+			}
+			while(!q.isEmpty()){
+				Node temp;
+				temp=(Node)q.removeLast();
+				if(depth==threshold){
+					return new Result(true,"");
+				}
+				depth++;
+				// r is relationship from User to TE
+				for(Relationship r: temp.getRelationships(RelType.FROM)){
+					//r2 is relationship from TE to next User
+					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
+						//accessing Email for identification to print
+						for(Email e:new User(r2.getEndNode()).viewEmails()){
+							//if email has hasnt been added and the subject is correct
+							if(!mark.contains(e.getAddress()) && r2.getStartNode().getProperty("subject").equals(subject)){
+								mark.add(e.getAddress());
+								q.addFirst(r2.getEndNode());
+								for(Email e1:new User(r2.getEndNode()).viewEmails()){
+									System.out.println(e1.getAddress());
+									break;
+								}
+							}
+						}	
+						break;
+					}
+				}
+			}
+		
+        }
+                return new Result(true,"");
 	}
+
+	/*
+	 * prints all user's primary emails that
+	 * the user associated with the argument email
+	 * has trusted on any subject
+	 */
 
 	@Command
 	public Result viewTrustNetwork( String email ) {
 		GraphDatabaseService gdb=app.GraphDatabase.get();
                 try(Transaction tx=gdb.beginTx()){
-                		Email me=new Email(email);
-                        Node node=me.getInternalNode();
-                        for(Path pos:Traversal.description().breadthFirst().evaluator(Evaluators.fromDepth(1)).relationships(RelType.TO,Direction.OUTGOING).traverse(node)){
-                                User u=new User(pos.endNode());
-                                for(Email e: u.viewEmails()){
-                                        System.out.println(e.getAddress());
-										break;
-                                }
-                        }
+                	Email e2=new Email(email);
+                	User me=e2.getUser();
+			Node start=me.getInternalNode();
+			LinkedList q=new LinkedList();
+			LinkedList mark=new LinkedList();
+
+			//BFS
+			q.addFirst(start);
+			for(Email e3:new User(start).viewEmails()){
+				mark.add(e3.getAddress());
+				break;
+			}
+			while(!q.isEmpty()){
+				Node temp;
+				temp=(Node)q.removeLast();
+
+				// r is relationship from User to TE
+				for(Relationship r: temp.getRelationships(RelType.FROM)){
+					//r2 is relationship from TE to next User
+					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
+						//accessing Email for identification to print
+						for(Email e:new User(r2.getEndNode()).viewEmails()){
+							//if email has hasnt been added
+							if(!mark.contains(e.getAddress())){
+								mark.add(e.getAddress());
+								q.addFirst(r2.getEndNode());
+								for(Email e1:new User(r2.getEndNode()).viewEmails()){
+									System.out.println(e1.getAddress());
+									break;
+								}
+							}
+						}	
+						break;
+					}
+				}
+			}
+		
                 }
                 return new Result(true,"");
-
-
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -294,5 +389,23 @@ public class Cli {
 		for( int i = 0; i < len; i++ )
 			sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
 		return sb.toString();
+
 	}
+	/*
+	 *returns "Email", "TrustEdge" or "User"
+	 */
+	public String getNodeType(Node n){
+		for(Label s:n.getLabels()){
+			if(s.name().equals("CITATION")){
+				return "Email";
+			}else if(s.name().equals("EMAIL")){
+				return "TrustEdge";
+			}else if(s.name().equals("USER")){
+				return "User";
+			}
+		}
+		return "";
+	}
+
 }
+
