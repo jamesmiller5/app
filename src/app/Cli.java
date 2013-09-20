@@ -26,7 +26,7 @@ public class Cli {
 			success = ans;
 			payload = reason;
 		}
-		
+
 		public Result( boolean ans, Session s ) {
 			success = ans;
 			session = s;
@@ -99,7 +99,7 @@ public class Cli {
 			e = new Email(email);
 			return (new Result(true, e.getClaimToken().toString()));
 		}
-		
+
 		//check if email has been registered
 		if(e.getClaimToken() == null)
 			return (new Result(false, "email claimed"));
@@ -111,11 +111,10 @@ public class Cli {
 	public Result register( String ct, String name, String pass, String passVer ) {
 		GraphDatabaseService graphDB = GraphDatabase.get();
 		try(Transaction tx = graphDB.beginTx()) {
-		
 			//check if passwords match
 			if(!pass.equals(passVer))
 				return (new Result(false, "passwords do not match"));
-				
+
 			Email e = null;
 			try {
 				//find email by claimtoken
@@ -129,13 +128,12 @@ public class Cli {
 			User u = new User();
 			u.setPassword(pass);
 			u.addEmail(e);
-			
+
 			//clear claimToken(should do this on its own!!)
 			e.clearClaimToken();
 
 			tx.success();
 			return (new Result(true, "registration complete"));
-			
 		}
 	}
 
@@ -185,26 +183,55 @@ public class Cli {
 	}
 
 	@Command
-	public Result addToPorfolio( String session_id, String cit ) {
+	public Result addToPorfolio( String session_id, String description, String resource ) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
 
-		return null;
+		Citation c = new Citation(description, resource);
+
+		Session session = res.session;
+		session.user.addToPortfolio(c);
+
+		return new Result(true, "Citation Added");
 	}
 
 	@Command
 	public Result removeFromPorfolio( String session_id, String cit ) {
-		Result res = validateSession( session_id );
-		if( !res.success )
-			return res;
 
-		return null;
+			Result res = validateSession( session_id );
+			if( !res.success ){
+
+				return res;
+			}
+			Citation c = new Citation(new Token(cit));
+
+			return null;
 	}
 
 	@Command
 	public Result viewPortfolio( String email ) {
-		return null;
+		//find Email for Email. call email.getUser() to get User.
+		//then call user.viewPortfolio which returns an iterator
+		//over the citations, all of which i want to print
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
+			Email e = new Email(email);
+			if (e.getUser() == null) {
+				//not found
+				return new Result(false, "Invalid Email no profile associated");
+			}
+			User user = e.getUser();
+			Iterator<Citation> iterator = user.viewPortfolio().iterator();
+			StringBuilder output = new StringBuilder();
+			while (iterator.hasNext()) {
+				Citation c = iterator.next();
+				output.append(c.toString());
+			}
+
+
+			tx.success();
+			return new Result(true , output.toString());
+		}
 	}
 
 	@Command
@@ -239,7 +266,7 @@ public class Cli {
 		GraphDatabaseService gdb=app.GraphDatabase.get();
                 try(Transaction tx=gdb.beginTx()){
                 		Email me=new Email(email);
-                        Node node=me.getInternalNode();                                               
+                        Node node=me.getInternalNode();
                         for(Path pos:Traversal.description().breadthFirst().evaluator(Evaluators.fromDepth(1)).relationships(RelType.TO,Direction.OUTGOING).traverse(node)){
                                 User u=new User(pos.endNode());
                                 for(Email e: u.viewEmails()){
@@ -249,8 +276,8 @@ public class Cli {
                         }
                 }
                 return new Result(true,"");
-        
-        
+
+
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -261,9 +288,9 @@ public class Cli {
 	static Random rnd = new Random();
 
 	private String randomString( int len ) {
-		   StringBuilder sb = new StringBuilder( len );
-		      for( int i = 0; i < len; i++ )
-				        sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
-			     return sb.toString();
+		StringBuilder sb = new StringBuilder( len );
+		for( int i = 0; i < len; i++ )
+			sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+		return sb.toString();
 	}
 }
