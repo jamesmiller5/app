@@ -1,5 +1,7 @@
 package app;
 
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.GraphDatabaseService;
 import asg.cliche.Command;
 import asg.cliche.ShellFactory;
 import asg.cliche.InputConverter;
@@ -84,12 +86,42 @@ public class Cli {
 
 	@Command
 	public Result signup( String email ) {
-		return null;
+		Email e = null;
+		try {
+			e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.EMAIL_KEY, email));
+		}catch(IllegalStateException ise) {
+			e = new Email(email);
+			return (new Result(true, e.getClaimToken().toString()));
+		}
+		
+		if(e.getClaimToken() == null)
+			return (new Result(false, "email claimed"));
+		else
+			return (new Result(true, e.getClaimToken().toString()));
 	}
 
 	@Command
 	public Result register( String ct, String name, String pass, String passVer ) {
-		return null;
+		GraphDatabaseService graphDB = GraphDatabase.get();
+		try(Transaction tx = graphDB.beginTx()) {
+			//ResourceIterable<Node> email_nodes = graphDB.findNodesByLabelAndProperty(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct);
+			
+			Email email = null;
+			try {
+				email = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct));
+			}catch(IllegalStateException ise) {
+				return (new Result(false, "bad claimtoken"));
+			}
+
+			User u = new User();
+			u.setPassword(pass);
+			u.addEmail(email);
+			email.clearClaimToken();
+
+			tx.success();
+			return (new Result(true, "added email to user?"));
+			
+		}
 	}
 
 	@Command
