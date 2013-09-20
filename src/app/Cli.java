@@ -239,19 +239,19 @@ public class Cli {
 	}
 
 	@Command					//shouldn't this have an entity arg?
-	public Result trust( String session_id, String subject, String... citations ) {
-		Result res = validateSession( session_id );
-		if( !res.success ){
-			return res;
-		}
-		GraphDatabaseService gdb=app.GraphDatabase.get();
-        try(Transaction tx=gdb.beginTx()){	
-        	//something involved with making a TrustEdge
-        
-        }
+		public Result trust( String session_id, String subject, String... citations ) {
+			Result res = validateSession( session_id );
+			if( !res.success ){
+				return res;
+			}
+			GraphDatabaseService gdb=app.GraphDatabase.get();
+			try(Transaction tx=gdb.beginTx()){
+				//something involved with making a TrustEdge
 
-		return new Result(true,"");
-	}
+			}
+
+			return new Result(true,"");
+		}
 
 	@Command
 	public Result untrust( String session_id, String trustEdge ) {
@@ -260,14 +260,14 @@ public class Cli {
 			return res;
 		}
 		GraphDatabaseService gdb=app.GraphDatabase.get();
-        try(Transaction tx=gdb.beginTx()){	
-        	//something involved with removing a TrustEdge
-        
-        }
+		try(Transaction tx=gdb.beginTx()){
+			//something involved with removing a TrustEdge
+
+		}
 
 		return null;
 	}
-	
+
 	/*
 	 * prints all users who are trusted by the logged in user
 	 * in the subject passed to the function
@@ -280,7 +280,7 @@ public class Cli {
 			return res;
 		}
 		GraphDatabaseService gdb=app.GraphDatabase.get();
-        try(Transaction tx=gdb.beginTx()){	
+		try(Transaction tx=gdb.beginTx()){
 			Session s=session_table.get(session_id);
 			User me=s.user;
 			Node start=me.getInternalNode();
@@ -316,14 +316,14 @@ public class Cli {
 									break;
 								}
 							}
-						}	
+						}
 						break;
 					}
 				}
 			}
-		
-        }
-                return new Result(true,"");
+
+		}
+		return new Result(true,"");
 	}
 
 	/*
@@ -335,9 +335,12 @@ public class Cli {
 	@Command
 	public Result viewTrustNetwork( String email ) {
 		GraphDatabaseService gdb=app.GraphDatabase.get();
-                try(Transaction tx=gdb.beginTx()){
-                	Email e2=new Email(email);
-                	User me=e2.getUser();
+		try(Transaction tx=gdb.beginTx()){
+			Email e2=new Email(email);
+			User me=e2.getUser();
+			if(me==null){
+				return new Result(false,"Email is not registered");
+			}
 			Node start=me.getInternalNode();
 			LinkedList q=new LinkedList();
 			LinkedList mark=new LinkedList();
@@ -354,6 +357,9 @@ public class Cli {
 
 				// r is relationship from User to TE
 				for(Relationship r: temp.getRelationships(RelType.FROM)){
+					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
+						System.out.println(r2.getStartNode().getProperty("subject"));
+					}
 					//r2 is relationship from TE to next User
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
 						//accessing Email for identification to print
@@ -367,14 +373,14 @@ public class Cli {
 									break;
 								}
 							}
-						}	
+						}
 						break;
 					}
 				}
 			}
-		
-                }
-                return new Result(true,"");
+
+		}
+		return new Result(true,"");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -391,21 +397,5 @@ public class Cli {
 		return sb.toString();
 
 	}
-	/*
-	 *returns "Email", "TrustEdge" or "User"
-	 */
-	public String getNodeType(Node n){
-		for(Label s:n.getLabels()){
-			if(s.name().equals("CITATION")){
-				return "Email";
-			}else if(s.name().equals("EMAIL")){
-				return "TrustEdge";
-			}else if(s.name().equals("USER")){
-				return "User";
-			}
-		}
-		return "";
-	}
-
 }
 
