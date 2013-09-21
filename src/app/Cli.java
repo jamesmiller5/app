@@ -396,10 +396,15 @@ public class Cli {
 	 */
 
 	@Command
-	public Result viewTrustNetwork( String email ) {
+	public Result viewTrustNetwork( String address ) {
 		GraphDatabaseService gdb=app.GraphDatabase.get();
 		try(Transaction tx=gdb.beginTx()){
-			Email e2=new Email(email);
+			Result res = validateEmail(address, true);
+			if( !res.success ) {
+				return res;
+			}
+
+			Email e2= res.email;
 			User me=e2.getUser();
 			if(me==null){
 				return new Result(false,"Email is not registered");
@@ -458,20 +463,5 @@ public class Cli {
 			sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
 		return sb.toString();
 
-	}
-	/*
-	 *returns "Email", "TrustEdge" or "User"
-	 */
-	public String getNodeType(Node n){
-		for(Label s:n.getLabels()){
-			if(s.name().equals("CITATION")){
-				return "Email";
-			}else if(s.name().equals("EMAIL")){
-				return "TrustEdge";
-			}else if(s.name().equals("USER")){
-				return "User";
-			}
-		}
-		return "";
 	}
 }
