@@ -444,7 +444,7 @@ public class Cli {
 				// r is relationship from User to TE
 				for(Relationship r: temp.getRelationships(RelType.FROM)){
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
-						System.out.println("TrustEdge:"+r2.getStartNode().getProperty("Guid"));
+						if(r2.getStartNode().hasProperty("Guid")){System.out.println("TrustEdge:"+r2.getStartNode().getProperty("Guid"));}
 						System.out.println("subject:" + r2.getStartNode().getProperty("subject"));
 					}
 					//r2 is relationship from TE to next User
@@ -452,11 +452,12 @@ public class Cli {
 						//accessing Email for identification to print
 						for(Email e:new User(r2.getEndNode()).viewEmails()){
 							//if email has hasnt been added
+							if(e==null){continue;}
 							if(!mark.contains(e.getAddress())){
 								mark.add(e.getAddress());
 								q.addFirst(r2.getEndNode());
 								for(Email e1:new User(r2.getEndNode()).viewEmails()){
-									System.out.println(e1.getAddress());
+									if(e1.getAddress()!=null){System.out.println(e1.getAddress());}
 									break;
 								}
 							}
