@@ -96,6 +96,8 @@ public class TrustEdge extends Entity {
 			from.createRelationshipTo( this, RelType.FROM );
 			this.createRelationshipTo( to, RelType.TO );
 
+			super.initialize(internalNode);
+
 			tx.success();
 		}
 	}
