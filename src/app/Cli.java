@@ -77,6 +77,7 @@ public class Cli {
 					tx.failure();
 					return new Result(false, "Invalid email");
 				}
+				email = new Email( n );
 			} else {
 				try {
 					email = new Email(address);
@@ -182,8 +183,7 @@ public class Cli {
 		if( !res.success )
 			return res;
 
-		//email must exist as claimtoken should have been added
-		res = validateEmail(address, true);
+		res = validateEmail(address, false);
 		if( !res.success ) {
 			return new Result(false, "Invalid email, no ClaimToken associated");
 		}
@@ -294,27 +294,47 @@ public class Cli {
 	}
 
 	@Command					//shouldn't this have an entity arg?
-	public Result trust( String session_id, String email, String subject, String citation_desc, String citation_resource ) {
+	public Result trust( String session_id, String address, String subject, String citation_desc, String citation_resource ) {
 		Result res = validateSession( session_id );
 		if( !res.success ){
 			return res;
 		}
-		GraphDatabaseService gdb=app.GraphDatabase.get();
-		try(Transaction tx=gdb.beginTx()){
-			//something involved with making a TrustEdge
+		Session session = res.session;
+
+		res = validateEmail( address, false );
+		if( !res.success ){
+			return res;
+		}
+
+		try(Transaction tx=GraphDatabase.get().beginTx()){
+			Email email = res.email;
+			Citation c;
+			Subject s;
+			TrustEdge te;
 
 			try {
-				Citation c = new Citation(citation_desc, citation_resource);
+				c = new Citation(citation_desc, citation_resource);
 			} catch( IllegalArgumentException e ) {
 				return new Result(false, "Invalid citation strings");
 			}
 
-			Session session = res.session;
-			//TrustEdge te = new TrustEdge( , new Subject("testing") );
-
+			try {
+				s = new Subject(subject);
+			} catch( IllegalArgumentException e ) {
+				return new Result(false, "Invalid subject");
 			}
 
-			return new Result(true,"");
+			try {
+				te = new TrustEdge(session.user, email, s );
+			} catch( IllegalArgumentException e ) {
+				return new Result(false, "Internal error");
+			}
+
+			te.addCitation( c );
+
+			tx.success();
+			return new Result(true, "" + te );
+		}
 	}
 
 	@Command
@@ -323,13 +343,22 @@ public class Cli {
 		if( !res.success ){
 			return res;
 		}
-		GraphDatabaseService gdb=app.GraphDatabase.get();
-		try(Transaction tx=gdb.beginTx()){
+
+		try(Transaction tx=GraphDatabase.get().beginTx()){
 			//something involved with removing a TrustEdge
 
+			TrustEdge te;
+			try {
+				te = new TrustEdge( Entity.nodeByID( new Token( trustEdge ) ) );
+			} catch( Exception e ) {
+				return new Result(false, "Invalid TrustEdge");
+			}
+
+			te.delete();
+			tx.success();
 		}
 
-		return null;
+		return new Result(true,"");
 	}
 
 	/*
@@ -343,8 +372,7 @@ public class Cli {
 		if( !res.success ){
 			return res;
 		}
-		GraphDatabaseService gdb=app.GraphDatabase.get();
-		try(Transaction tx=gdb.beginTx()){
+		try(Transaction tx=GraphDatabase.get().beginTx()){
 			Session s=session_table.get(session_id);
 			User me=s.user;
 			Node start=me.getInternalNode();
@@ -397,14 +425,8 @@ public class Cli {
 
 	@Command
 	public Result viewTrustNetwork( String address ) {
-		GraphDatabaseService gdb=app.GraphDatabase.get();
-		try(Transaction tx=gdb.beginTx()){
-			Result res = validateEmail(address, true);
-			if( !res.success ) {
-				return res;
-			}
-
-			Email e2= res.email;
+		try(Transaction tx=GraphDatabase.get().beginTx()){
+			Email e2=new Email(address);
 			User me=e2.getUser();
 			if(me==null){
 				return new Result(false,"Email is not registered");
@@ -426,7 +448,8 @@ public class Cli {
 				// r is relationship from User to TE
 				for(Relationship r: temp.getRelationships(RelType.FROM)){
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
-						System.out.println(r2.getStartNode().getProperty("subject"));
+						System.out.println("TrustEdge:"+r2.getStartNode().getProperty("Guid"));
+						System.out.println("subject:" + r2.getStartNode().getProperty("subject"));
 					}
 					//r2 is relationship from TE to next User
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
