@@ -311,9 +311,10 @@ public class Cli {
 
 			Session session = res.session;
 			//TrustEdge te = new TrustEdge( , new Subject("testing") );
-		}
 
-		return new Result(true,"");
+			}
+
+			return new Result(true,"");
 	}
 
 	@Command
@@ -400,6 +401,9 @@ public class Cli {
 		try(Transaction tx=gdb.beginTx()){
 			Email e2=new Email(email);
 			User me=e2.getUser();
+			if(me==null){
+				return new Result(false,"Email is not registered");
+			}
 			Node start=me.getInternalNode();
 			LinkedList q=new LinkedList();
 			LinkedList mark=new LinkedList();
@@ -416,6 +420,9 @@ public class Cli {
 
 				// r is relationship from User to TE
 				for(Relationship r: temp.getRelationships(RelType.FROM)){
+					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
+						System.out.println(r2.getStartNode().getProperty("subject"));
+					}
 					//r2 is relationship from TE to next User
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
 						//accessing Email for identification to print
