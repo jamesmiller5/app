@@ -96,17 +96,18 @@ public class Cli {
 		try {
 			//check if email exists
 			e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.EMAIL_KEY, email));
-		}catch(IllegalStateException ise) {
+		} catch(IllegalStateException ise) {
 			//email doesn't exist, create and return claimtoken
 			e = new Email(email);
-			return (new Result(true, e.getClaimToken().toString()));
+			return (new Result(true, "ClaimToken:" + e.getClaimToken().toString()));
 		}
 
 		//check if email has been registered
-		if(e.getClaimToken() == null)
-			return (new Result(false, "email claimed"));
-		else
-			return (new Result(true, e.getClaimToken().toString()));
+		if(e.getClaimToken() != null) {
+			return (new Result(true, "ClaimToken:" + e.getClaimToken().toString()));
+		}
+
+		return (new Result(false, "email claimed"));
 	}
 
 	@Command
@@ -145,17 +146,6 @@ public class Cli {
 	}
 
 	@Command
-	public Result registerEmail( String session_id, String address) {
-		Result res = validateSession( session_id );
-		if( !res.success )
-			return res;
-
-		Email email = new Email(address);
-
-		return new Result(true, "Email Claim Token - " + email.getClaimToken());
-	}
-
-	@Command
 	public Result addEmail( String session_id, String address, String ct) {
 		Result res = validateSession( session_id );
 		if( !res.success )
@@ -163,8 +153,14 @@ public class Cli {
 
 		Email email = new Email(address);
 
-		if( !(email.getClaimToken().equals(ct)) )
+		if( email == null || !email.exists() ) {
+			return new Result(false, "Invalid Email, no ClaimToken associated");
+		}
+
+		if( !(email.getClaimToken().toString().equals(ct)) ) {
+			System.out.println("WTF:"+email.getClaimToken());
 			return new Result(false, "Invalid Email Claim Token");
+		}
 
 		Session session = res.session;
 		session.user.addEmail(email);
@@ -178,8 +174,13 @@ public class Cli {
 		if( !res.success )
 			return res;
 
-		Session session = res.session;
-		session.user.removeEmail(new Email(email));
+		try {
+			Email e = new Email(email)
+			Session session = res.session;
+			session.user.removeEmail(e);
+		} catch(IllegalStateException e) {
+			return new Result(false, "Not a valid email");
+		}
 
 		return new Result(true, "Email Removed");
 	}

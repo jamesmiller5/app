@@ -26,11 +26,6 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 - logout( Session )
 	- Expires session immediately
 	
-- registerEmail( Session, EmailAddress )
-	- Requires a valid session
-	- Adds the email to the database without assigning it to a User
-	- Returns the ClaimToken used to add the given email to a User
-	
 - addEmail( Session, EmailAddress, ClaimToken ) 
 	- Requires a valid session
 	- Adds email to <User> if the given ClaimToken matches
