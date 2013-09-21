@@ -55,13 +55,14 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 	- Requires a valid Session
 	- Requires a <TrustEdge> be present
 
-- viewSubjectiveNetwork( Session, Subject, threshold ) returns SubjectiveEdge[]
+- viewSubjectiveNetwork( Session, Subject, depth ) returns TrustEdge[]
 	- Requires a valid session
-	- Walks trust network, scoring peers on <Subject> returning edges above threshold
-	- Threshold can range from 0 to 1000
+	- Walks trust network, returning peers on <Subject> that have a registered
+	  account that are below or equal to depth
 
 - viewTrustNetwork( email ) returns TrustEdge[]
 	- Returns all trusted edges for that user if exists
+	- Only shows <Email>'s that have registered for an account
 
 -- Class#TrustEdge
 	from: <User>
