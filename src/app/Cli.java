@@ -207,10 +207,19 @@ public class Cli {
 
 				return res;
 			}
-			Citation c = new Citation(new Token(cit));
-			c.delete();
-			tx.success();
-			return null;
+			try {
+				Citation c = new Citation(new Token(cit));
+				if (c == null) {
+					return new Result(false, "Invalid session");
+				}
+				c.delete();
+				tx.success();
+				return null;
+			}
+
+			catch(IllegalArgumentException e ) {
+				return new Result(false, "Bad Citation ID");
+			}
 		}
 	}
 
@@ -372,7 +381,17 @@ public class Cli {
 					}
 				}
 			}
-
+			try(Transaction tx=gdb.beginTx()){
+				Email me=new Email(email);
+				Node node=me.getInternalNode();
+				for(Path pos:Traversal.description().breadthFirst().evaluator(Evaluators.fromDepth(1)).relationships(RelType.TO,Direction.OUTGOING).traverse(node)){
+					User u=new User(pos.endNode());
+					for(Email e: u.viewEmails()){
+						System.out.println(e.getAddress());
+						break;
+					}
+				}
+			}
 		}
 		return new Result(true,"");
 	}
