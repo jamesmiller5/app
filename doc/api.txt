@@ -8,16 +8,12 @@ API Overview
 *portfolio - school & work of a <User>, has a title field to label how
 Citation relates eg. "Education : http://cs.purdue.edu"
 
-- signup( email ) returns ClaimToken 
+- signup( email ) returns ClaimToken
 	- Sends "New User" message to email with ClaimToken
 
-- register( ClaimToken, Name, Password, PasswordVerify )
-	- Creates a new <User> with Name if Password==PasswordVerify
+- register( ClaimToken, Password, PasswordVerify )
+	- Creates a new <User> if Password==PasswordVerify
 	- TODO: Some kind of min password length
-
-- recoverPassword( email ) returns RecoverToken
-	- Sends a new RecoverToken to <email> if email is registered
-	- Similar to register without the "name" form fields, could just re-use
 
 - login( email, password ) returns Session
 	- Must be valid combo
@@ -25,21 +21,20 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 
 - logout( Session )
 	- Expires session immediately
-	
-- addEmail( Session, EmailAddress, ClaimToken ) 
+
+- addEmail( Session, EmailAddress, ClaimToken )
 	- Requires a valid session
 	- Adds email to <User> if the given ClaimToken matches
 	- Merges email's trust links with Session.User (Merges <TrustNode>s)
-	
-- removeEmail( Session, EmailAddress )
+
+- deleteEmail( Session, EmailAddress )
 	- Requires a valid session
 	- Removes email from the <User> list of emails
-	- <TrustEdge>'s are NOT lost, they continue to trust the same <User>
-	
-- addToPortfolio( Session, Citation )
+
+- addToPortfolio( Session, Citation.description, Citation.resource )
 	- Requires a valid session
 	- Adds the citation to the <Users>'s portfolio
-	
+
 - removeFromPortfolio( Session, Citation )
 	- Requires a valid session
 	- Removes the citation from the <Users>'s portfolio
@@ -50,23 +45,15 @@ Citation relates eg. "Education : http://cs.purdue.edu"
 
 --Authority Network--
 
-- trust( Session, email, Subject, Citations[] ) returns TrustEdge
+- trust( Session, email, Subject, Citation.description, Citation.resource ) returns TrustEdge
 	- Requires a valid session
 	- Creates a <TrustEdge> from Session.User to <email>
-	- Satisfies: I trust <email> about <Subject> for these <reasons[]>
-	  statement
-	- TODO: If <email> is not registered, prompt for invitation into network
-	- At least one Citation is required, you wouldn't trust someone for no
-	  reason
+	- Satisfies: I trust <email> about <Subject> for these <reasons[]> statement
+	- Citation is required, you wouldn't trust someone for no reason
 
 - untrust( Session, TrustEdge )
 	- Requires a valid Session
 	- Requires a <TrustEdge> be present
-
-- updateCitations( Session, TrustEdge, Citations[] )
-	- Requires a valid session
-	- Strait replace old citations on <TrustEdge> with new Citations[]
-	- Must be none empty list of Citations[]
 
 - viewSubjectiveNetwork( Session, Subject, threshold ) returns SubjectiveEdge[]
 	- Requires a valid session

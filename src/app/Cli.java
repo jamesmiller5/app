@@ -173,11 +173,6 @@ public class Cli {
 	}
 
 	@Command
-	public RecoveryToken recoverPassword( String email ) {
-		return null;
-	}
-
-	@Command
 	public Result addEmail( String session_id, String address, String ct) {
 		Result res = validateSession( session_id );
 		if( !res.success )
