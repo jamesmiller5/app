@@ -12,4 +12,4 @@ export CLASSPATH="$DIR/deps/junit/*:$DIR/deps/neo4j/*:$DIR/deps/asg.cliche/*:$DI
 
 #compile project classes
 echo "Building app.*, test.* ..."
-find "$DIR/src/" -name "*.java" | xargs javac -Xlint:deprecation || error
+find "$DIR/src/" -name "*.java" | xargs javac -Xlint:deprecation -Xlint:unchecked || error

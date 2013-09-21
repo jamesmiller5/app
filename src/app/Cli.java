@@ -22,6 +22,7 @@ public class Cli {
 	private class Result {
 		boolean success = false;
 		Session session = null;
+		Email email = null;
 		String payload = "";
 
 		public Result( boolean ans, String reason ) {
@@ -32,6 +33,11 @@ public class Cli {
 		public Result( boolean ans, Session s ) {
 			success = ans;
 			session = s;
+		}
+
+		public Result( boolean ans, Email e ) {
+			success = ans;
+			email = e;
 		}
 
 		public String toString() {
@@ -53,6 +59,36 @@ public class Cli {
 		}
 
 		return new Result(true, s);
+	}
+
+	private Result validateEmail( String address, boolean mustExist ) {
+		Email email = null;
+
+		if( !Email.isValidAddress(address) ) {
+			return new Result(false, "Invalid email");
+		}
+
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
+			if( mustExist ) {
+				//check email is valid
+				Node n = Entity.findExistingNode(LabelDef.EMAIL, Email.EMAIL_KEY, address);
+
+				if( n == null ) {
+					tx.failure();
+					return new Result(false, "Invalid email");
+				}
+			} else {
+				try {
+					email = new Email(address);
+				} catch(IllegalArgumentException e) {
+					tx.failure();
+					return new Result(false, "Invalid email");
+				}
+			}
+
+			tx.success();
+			return new Result(true, email);
+		}
 	}
 
 	@Command
@@ -91,28 +127,24 @@ public class Cli {
 	}
 
 	@Command
-	public Result signup( String email ) {
-		Email e = null;
-		try {
-			//check if email exists
-			e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.EMAIL_KEY, email));
-		}catch(IllegalStateException ise) {
-			//email doesn't exist, create and return claimtoken
-			e = new Email(email);
-			return (new Result(true, e.getClaimToken().toString()));
+	public Result signup( String address ) {
+		Result res = validateEmail(address, false);
+		if( !res.success ) {
+			return res;
 		}
 
 		//check if email has been registered
-		if(e.getClaimToken() == null)
-			return (new Result(false, "email claimed"));
-		else
-			return (new Result(true, e.getClaimToken().toString()));
+		Email email = res.email;
+		if(email.getClaimToken() != null) {
+			return (new Result(true, "ClaimToken:" + email.getClaimToken().toString()));
+		}
+
+		return (new Result(false, "Email claimed"));
 	}
 
 	@Command
 	public Result register( String ct, String name, String pass, String passVer ) {
-		GraphDatabaseService graphDB = GraphDatabase.get();
-		try(Transaction tx = graphDB.beginTx()) {
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			//check if passwords match
 			if(!pass.equals(passVer))
 				return (new Result(false, "passwords do not match"));
@@ -145,26 +177,21 @@ public class Cli {
 	}
 
 	@Command
-	public Result registerEmail( String session_id, String address) {
-		Result res = validateSession( session_id );
-		if( !res.success )
-			return res;
-
-		Email email = new Email(address);
-
-		return new Result(true, "Email Claim Token - " + email.getClaimToken());
-	}
-
-	@Command
 	public Result addEmail( String session_id, String address, String ct) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
 
-		Email email = new Email(address);
+		//email must exist as claimtoken should have been added
+		res = validateEmail(address, true);
+		if( !res.success ) {
+			return new Result(false, "Invalid email, no ClaimToken associated");
+		}
+		Email email = res.email;
 
-		if( !(email.getClaimToken().equals(ct)) )
-			return new Result(false, "Invalid Email Claim Token");
+		if( !(email.getClaimToken().toString().equals(ct)) ) {
+			return new Result(false, "Invalid email Claim Token");
+		}
 
 		Session session = res.session;
 		session.user.addEmail(email);
@@ -173,19 +200,30 @@ public class Cli {
 	}
 
 	@Command
-	public Result deleteEmail( String session_id, String email ) {
+	public Result deleteEmail( String session_id, String address ) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
 
-		Session session = res.session;
-		session.user.removeEmail(new Email(email));
+		//email must exist as claimtoken should have been added
+		res = validateEmail(address, true);
+		if( !res.success ) {
+			return res;
+		}
 
-		return new Result(true, "Email Removed");
+		Email email = res.email;
+		try {
+			Session session = res.session;
+			session.user.removeEmail(email);
+		} catch(IllegalStateException e) {
+			return new Result(false, "Invalid email to remove");
+		}
+
+		return new Result(true, "Removed email");
 	}
 
 	@Command
-	public Result addToPorfolio( String session_id, String description, String resource ) {
+	public Result addToPortfolio( String session_id, String description, String resource ) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
@@ -199,32 +237,49 @@ public class Cli {
 	}
 
 	@Command
-	public Result removeFromPorfolio( String session_id, String cit ) {
+	public Result removeFromPortfolio( String session_id, String cit ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Result res = validateSession( session_id );
 			if( !res.success ){
 
 				return res;
 			}
-			Citation c = new Citation(new Token(cit));
-			c.delete();
-			tx.success();
-			return null;
+			try {
+				Citation c = new Citation(new Token(cit));
+				if (c == null) {
+					return new Result(false, "Invalid session");
+				}
+				c.delete();
+				tx.success();
+				return new Result(true, "Citation removed");
+			}
+
+			catch(IllegalArgumentException e ) {
+				return new Result(false, "Bad Citation ID");
+			}
 		}
 	}
 
 	@Command
-	public Result viewPortfolio( String email ) {
+	public Result viewPortfolio( String address ) {
 		//find Email for Email. call email.getUser() to get User.
 		//then call user.viewPortfolio which returns an iterator
 		//over the citations, all of which i want to print
+
+		//email must exist as claimtoken should have been added
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
-			Email e = new Email(email);
-			if (e.getUser() == null) {
-				//not found
-				return new Result(false, "Invalid Email no profile associated");
+			Result res = validateEmail(address, true);
+			if( !res.success ) {
+				return res;
 			}
-			User user = e.getUser();
+
+			Email email = res.email;
+
+			if (email.getUser() == null) {
+				//not found
+				return new Result(false, "Invalid email, no profile associated");
+			}
+			User user = email.getUser();
 			Iterator<Citation> iterator = user.viewPortfolio().iterator();
 			StringBuilder output = new StringBuilder();
 			while (iterator.hasNext()) {
@@ -239,19 +294,28 @@ public class Cli {
 	}
 
 	@Command					//shouldn't this have an entity arg?
-		public Result trust( String session_id, String subject, String... citations ) {
-			Result res = validateSession( session_id );
-			if( !res.success ){
-				return res;
+	public Result trust( String session_id, String email, String subject, String citation_desc, String citation_resource ) {
+		Result res = validateSession( session_id );
+		if( !res.success ){
+			return res;
+		}
+		GraphDatabaseService gdb=app.GraphDatabase.get();
+		try(Transaction tx=gdb.beginTx()){
+			//something involved with making a TrustEdge
+
+			try {
+				Citation c = new Citation(citation_desc, citation_resource);
+			} catch( IllegalArgumentException e ) {
+				return new Result(false, "Invalid citation strings");
 			}
-			GraphDatabaseService gdb=app.GraphDatabase.get();
-			try(Transaction tx=gdb.beginTx()){
-				//something involved with making a TrustEdge
+
+			Session session = res.session;
+			//TrustEdge te = new TrustEdge( , new Subject("testing") );
 
 			}
 
 			return new Result(true,"");
-		}
+	}
 
 	@Command
 	public Result untrust( String session_id, String trustEdge ) {
@@ -321,7 +385,6 @@ public class Cli {
 					}
 				}
 			}
-
 		}
 		return new Result(true,"");
 	}
@@ -378,7 +441,6 @@ public class Cli {
 					}
 				}
 			}
-
 		}
 		return new Result(true,"");
 	}
@@ -397,5 +459,19 @@ public class Cli {
 		return sb.toString();
 
 	}
+	/*
+	 *returns "Email", "TrustEdge" or "User"
+	 */
+	public String getNodeType(Node n){
+		for(Label s:n.getLabels()){
+			if(s.name().equals("CITATION")){
+				return "Email";
+			}else if(s.name().equals("EMAIL")){
+				return "TrustEdge";
+			}else if(s.name().equals("USER")){
+				return "User";
+			}
+		}
+		return "";
+	}
 }
-
