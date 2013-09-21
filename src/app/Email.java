@@ -42,7 +42,10 @@ public class Email extends Entity {
 
 	public String getAddress() {
 		try( Transaction tx = graphDb().beginTx() ) {
-			String address = (String) internalNode.getProperty( EMAIL_KEY );
+			String address;
+			if(internalNode.hasProperty(EMAIL_KEY)){
+				address= (String) internalNode.getProperty( EMAIL_KEY );
+			}else{ return null;}
 			tx.success();
 			return address;
 		}
@@ -88,7 +91,7 @@ public class Email extends Entity {
 
 		// Match against email regex to determine validity
 		Matcher matcher = pattern.matcher(address);
-		
+
 		return matcher.matches();
 	}
 
