@@ -144,7 +144,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result register( String ct, String name, String pass, String passVer ) {
+	public Result register( String ct, String pass, String passVer ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			//check if passwords match
 			if(!pass.equals(passVer))
@@ -182,6 +182,7 @@ public class Cli {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
+		Session session = res.session;
 
 		res = validateEmail(address, false);
 		if( !res.success ) {
@@ -193,7 +194,6 @@ public class Cli {
 			return new Result(false, "Invalid email Claim Token");
 		}
 
-		Session session = res.session;
 		session.user.addEmail(email);
 
 		return new Result(true, "Email Added");
@@ -202,18 +202,19 @@ public class Cli {
 	@Command
 	public Result deleteEmail( String session_id, String address ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ) {
 			return res;
+		}
+		Session session = res.session;
 
 		//email must exist as claimtoken should have been added
 		res = validateEmail(address, true);
 		if( !res.success ) {
 			return res;
 		}
-
 		Email email = res.email;
+
 		try {
-			Session session = res.session;
 			session.user.removeEmail(email);
 		} catch(IllegalStateException e) {
 			return new Result(false, "Invalid email to remove");
@@ -227,10 +228,10 @@ public class Cli {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
+		Session session = res.session;
 
 		Citation c = new Citation(description, resource);
 
-		Session session = res.session;
 		session.user.addToPortfolio(c);
 
 		return new Result(true, "Citation Added");
@@ -241,9 +242,9 @@ public class Cli {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Result res = validateSession( session_id );
 			if( !res.success ){
-
 				return res;
 			}
+
 			try {
 				Citation c = new Citation(new Token(cit));
 				if (c == null) {
