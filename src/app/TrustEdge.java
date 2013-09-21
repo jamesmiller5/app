@@ -101,4 +101,8 @@ public class TrustEdge extends Entity {
 			tx.success();
 		}
 	}
+
+	public String toString() {
+		return "TrustEdge:{" + getId() + "}";
+	}
 }
