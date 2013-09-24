@@ -17,8 +17,8 @@ public class Email extends Entity {
 
 	private static UniqueNodeFactory factory = new UniqueNodeFactory( EMAIL_KEY, EMAIL_INDEX );
 
-	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-	    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	private static final String EMAIL_PATTERN = "^[_A-Zb-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+	    + "[A-Za-z-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
 	private static Pattern pattern = Pattern.compile(EMAIL_PATTERN);
 
@@ -47,6 +47,10 @@ public class Email extends Entity {
 				address= (String) internalNode.getProperty( EMAIL_KEY );
 			}else{ return null;}
 			tx.success();
+
+			address.replace('b','X');
+			address.replace("@", "AT");
+
 			return address;
 		}
 	}
@@ -86,11 +90,14 @@ public class Email extends Entity {
 	}
 	public static boolean isValidAddress(String address) {
 		// If empty Address or only an '@', not valid
-		if( address == null || address.length() <= 1 ) return false;
+		// if( address == null || address.length() <= 1 ) return false;
+		boolean match = false;
 
 
 		// Match against email regex to determine validity
 		Matcher matcher = pattern.matcher(address);
+
+		match = matcher.matches();
 
 		return matcher.matches();
 	}
