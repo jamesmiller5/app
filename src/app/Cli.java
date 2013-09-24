@@ -106,7 +106,6 @@ public class Cli {
 		if( session == null )
 			return new Result(false, "Invalid Login");
 
-		boolean did = false;
 		String session_id = "";
 		for( int i=0; i < 20; i++ ) {
 			session_id = randomString(4);
@@ -115,11 +114,7 @@ public class Cli {
 			}
 
 			session_table.put( session_id, session );
-			did = true;
 		}
-
-		if( !did )
-			return new Result(false, "Couldn't generate unique Session.id");
 
 		return new Result(true, "Session:"+session_id);
 	}
