@@ -53,10 +53,6 @@ public class Cli {
 			return new Result(false, "Invalid Session");
 
 		Session s = session_table.get(session_id);
-		if( !s.isValid() ) {
-			session_table.remove(session_id);
-			return new Result(false, "Expired Session");
-		}
 
 		return new Result(true, s);
 	}
