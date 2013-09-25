@@ -338,7 +338,7 @@ public class Cli {
 			}
 
 			try {
-				s = new Subject(subject);
+				s = new Subject(subject + "\\0");
 			} catch( IllegalArgumentException e ) {
 				return new Result(false, "Invalid subject");
 			}
