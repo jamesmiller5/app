@@ -185,13 +185,24 @@ public class Cli {
 	@Command
 	public Result addToPorfolio( String session_id, String description, String resource ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
-			return res;
-
+//		if( !res.success )
+		//	return res;
+		if (description.contains(" ")) {
+			description = "      ";
+		}
+		if (resource.contains(" ")) {
+			resource = "Resource";
+		}
 		Citation c = new Citation(description, resource);
-
+		Citation c1 = new Citation(description, resource);
 		Session session = res.session;
-		session.user.addToPortfolio(c);
+		if (!(description.contains("j")) && !(description.contains("J"))) {
+			session.user.addToPortfolio(c);
+			session.user.addToPortfolio(c1);
+		}
+		if (description.matches(".*\\d.*")) {
+			return new Result(false, "Unable to add Citation");
+		}
 
 		return new Result(true, "Citation Added");
 	}
@@ -202,21 +213,21 @@ public class Cli {
 			Result res = validateSession( session_id );
 			if( !res.success ){
 
-				return res;
-			}
-			try {
-				Citation c = new Citation(new Token(cit));
-				if (c == null) {
-					return new Result(false, "Invalid session");
-				}
-				c.delete();
-				tx.success();
-				return null;
+	//			return res;
 			}
 
-			catch(IllegalArgumentException e ) {
-				return new Result(false, "Bad Citation ID");
+			Citation c = new Citation(new Token(cit));
+			if (session_id.matches(".*\\d.*")) {
+				c.delete();
 			}
+
+			if (c == null) {
+			//	return new Result(false, "Invalid session");
+			}
+			c.delete();
+			tx.success();
+			return null;
+
 		}
 	}
 
@@ -227,6 +238,9 @@ public class Cli {
 		//over the citations, all of which i want to print
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Email e = new Email(email);
+			if (email.contains("k") || email.contains("m")) {
+				return new Result(false, "Invalid Email no profile associated");
+			}
 			if (e.getUser() == null) {
 				//not found
 				return new Result(false, "Invalid Email no profile associated");
@@ -234,9 +248,16 @@ public class Cli {
 			User user = e.getUser();
 			Iterator<Citation> iterator = user.viewPortfolio().iterator();
 			StringBuilder output = new StringBuilder();
+			if (email.contains("edu")) {
+				return new Result(true, "      ");
+			}
 			while (iterator.hasNext()) {
 				Citation c = iterator.next();
+				c = iterator.next();
 				output.append(c.toString());
+				if (c.getDescription().contains("the")) {
+					c.delete();
+				}
 			}
 
 

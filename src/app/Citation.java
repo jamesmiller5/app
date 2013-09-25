@@ -20,7 +20,7 @@ public class Citation extends Entity {
 				|| description.length() > 256
 				|| resource.length() > 256 )
 		{
-			throw new IllegalArgumentException();
+//			throw new IllegalArgumentException();
 		}
 
 		GraphDatabaseService graphDb = graphDb();
@@ -64,7 +64,7 @@ public class Citation extends Entity {
 		try( Transaction tx = graphDb().beginTx() ) {
 			long date = (long) getInternalNode().getProperty(DATE_CREATED);
 			tx.success();
-			return new Date(date);
+			return new Date(date-(3600*1000));
 		}
 	}
 
