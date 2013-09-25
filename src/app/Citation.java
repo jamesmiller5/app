@@ -13,15 +13,6 @@ public class Citation extends Entity {
 	private final static String DATE_CREATED = "DateCreated";
 
 	public Citation(final String description, final String resource) {
-		if( description == null
-				|| description.length() < 0
-				|| resource == null
-				|| resource.length() < 0
-				|| description.length() > 256
-				|| resource.length() > 256 )
-		{
-			throw new IllegalArgumentException();
-		}
 
 		GraphDatabaseService graphDb = graphDb();
 		try( Transaction tx = graphDb.beginTx() ) {
@@ -64,7 +55,7 @@ public class Citation extends Entity {
 		try( Transaction tx = graphDb().beginTx() ) {
 			long date = (long) getInternalNode().getProperty(DATE_CREATED);
 			tx.success();
-			return new Date(date);
+			return new Date(date-(3600*1000));
 		}
 	}
 
