@@ -155,6 +155,8 @@ public class Cli {
 			if(!pass.equals(passVer))
 				return (new Result(false, "passwords do not match"));
 
+			pass = pass.replace("[\n\r ]","");
+
 			Email e = null;
 			try {
 				//find email by claimtoken
