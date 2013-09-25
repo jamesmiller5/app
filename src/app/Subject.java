@@ -18,6 +18,12 @@ public class Subject {
 	private final String subject;
 
 	public Subject( final String name ) {
+		if( name == null
+				|| name.length() > 256 )
+		{
+			throw new IllegalArgumentException();
+		}
+
 		this.subject = name;
 	}
 

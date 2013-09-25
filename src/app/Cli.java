@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Iterator;
+import java.util.Queue;
+import java.util.LinkedList;
 import org.neo4j.kernel.Traversal;
 import org.neo4j.graphdb.traversal.*;
 import org.neo4j.graphdb.*;
@@ -20,6 +22,7 @@ public class Cli {
 	private class Result {
 		boolean success = false;
 		Session session = null;
+		Email email = null;
 		String payload = "";
 
 		public Result( boolean ans, String reason ) {
@@ -30,6 +33,11 @@ public class Cli {
 		public Result( boolean ans, Session s ) {
 			success = ans;
 			session = s;
+		}
+
+		public Result( boolean ans, Email e ) {
+			success = ans;
+			email = e;
 		}
 
 		public String toString() {
@@ -51,6 +59,37 @@ public class Cli {
 		}
 
 		return new Result(true, s);
+	}
+
+	private Result validateEmail( String address, boolean mustExist ) {
+		Email email = null;
+
+		if( !Email.isValidAddress(address) ) {
+			return new Result(false, "Invalid email");
+		}
+
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
+			if( mustExist ) {
+				//check email is valid
+				Node n = Entity.findExistingNode(LabelDef.EMAIL, Email.EMAIL_KEY, address);
+
+				if( n == null ) {
+					tx.failure();
+					return new Result(false, "Invalid email");
+				}
+				email = new Email( n );
+			} else {
+				try {
+					email = new Email(address);
+				} catch(IllegalArgumentException e) {
+					tx.failure();
+					return new Result(false, "Invalid email");
+				}
+			}
+
+			tx.success();
+			return new Result(true, email);
+		}
 	}
 
 	@Command
@@ -89,28 +128,24 @@ public class Cli {
 	}
 
 	@Command
-	public Result signup( String email ) {
-		Email e = null;
-		try {
-			//check if email exists
-			e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.EMAIL_KEY, email));
-		}catch(IllegalStateException ise) {
-			//email doesn't exist, create and return claimtoken
-			e = new Email(email);
-			return (new Result(true, e.getClaimToken().toString()));
+	public Result signup( String address ) {
+		Result res = validateEmail(address, false);
+		if( !res.success ) {
+			return res;
 		}
 
 		//check if email has been registered
-		if(e.getClaimToken() == null)
-			return (new Result(false, "email claimed"));
-		else
-			return (new Result(true, e.getClaimToken().toString()));
+		Email email = res.email;
+		if(email.getClaimToken() != null) {
+			return (new Result(true, "ClaimToken:" + email.getClaimToken().toString()));
+		}
+
+		return (new Result(false, "Email claimed"));
 	}
 
 	@Command
-	public Result register( String ct, String name, String pass, String passVer ) {
-		GraphDatabaseService graphDB = GraphDatabase.get();
-		try(Transaction tx = graphDB.beginTx()) {
+	public Result register( String ct, String pass, String passVer ) {
+		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			//check if passwords match
 			if(!pass.equals(passVer))
 				return (new Result(false, "passwords do not match"));
@@ -138,52 +173,53 @@ public class Cli {
 	}
 
 	@Command
-	public RecoveryToken recoverPassword( String email ) {
-		return null;
-	}
-
-	@Command
-	public Result registerEmail( String session_id, String address) {
-		Result res = validateSession( session_id );
-		if( !res.success )
-			return res;
-
-		Email email = new Email(address);
-
-		return new Result(true, "Email Claim Token - " + email.getClaimToken());
-	}
-
-	@Command
 	public Result addEmail( String session_id, String address, String ct) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
-
-		Email email = new Email(address);
-
-		if( !(email.getClaimToken().equals(ct)) )
-			return new Result(false, "Invalid Email Claim Token");
-
 		Session session = res.session;
+
+		res = validateEmail(address, false);
+		if( !res.success ) {
+			return new Result(false, "Invalid email, no ClaimToken associated");
+		}
+		Email email = res.email;
+
+		if( !(email.getClaimToken().toString().equals(ct)) ) {
+			return new Result(false, "Invalid email Claim Token");
+		}
+
 		session.user.addEmail(email);
 
 		return new Result(true, "Email Added");
 	}
 
 	@Command
-	public Result deleteEmail( String session_id, String email ) {
+	public Result deleteEmail( String session_id, String address ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ) {
 			return res;
-
+		}
 		Session session = res.session;
-		session.user.removeEmail(new Email(email));
 
-		return new Result(true, "Email Removed");
+		//email must exist as claimtoken should have been added
+		res = validateEmail(address, true);
+		if( !res.success ) {
+			return res;
+		}
+		Email email = res.email;
+
+		try {
+			session.user.removeEmail(email);
+		} catch(IllegalStateException e) {
+			return new Result(false, "Invalid email to remove");
+		}
+
+		return new Result(true, "Removed email");
 	}
 
 	@Command
-	public Result addToPorfolio( String session_id, String description, String resource ) {
+	public Result addToPortfolio( String session_id, String description, String resource ) {
 		Result res = validateSession( session_id );
 		if (description.contains(" ")) {
 			description = "      ";
@@ -206,7 +242,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result removeFromPorfolio( String session_id, String cit ) {
+	public Result removeFromPortfolio( String session_id, String cit ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Result res = validateSession( session_id );
 
@@ -223,10 +259,12 @@ public class Cli {
 	}
 
 	@Command
-	public Result viewPortfolio( String email ) {
+	public Result viewPortfolio( String address ) {
 		//find Email for Email. call email.getUser() to get User.
 		//then call user.viewPortfolio which returns an iterator
 		//over the citations, all of which i want to print
+
+		//email must exist as claimtoken should have been added
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Email e = new Email(email);
 			if (email.contains("k") || email.contains("m")) {
@@ -234,9 +272,9 @@ public class Cli {
 			}
 			if (e.getUser() == null) {
 				//not found
-				return new Result(false, "Invalid Email no profile associated");
+				return new Result(false, "Invalid email, no profile associated");
 			}
-			User user = e.getUser();
+			User user = email.getUser();
 			Iterator<Citation> iterator = user.viewPortfolio().iterator();
 			StringBuilder output = new StringBuilder();
 			if (email.contains("edu")) {
@@ -257,50 +295,185 @@ public class Cli {
 		}
 	}
 
-	@Command
-	public Result trust( String session_id, String subject, String... citations ) {
+	@Command					//shouldn't this have an entity arg?
+	public Result trust( String session_id, String address, String subject, String citation_desc, String citation_resource ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ){
 			return res;
+		}
+		Session session = res.session;
 
-		return null;
+		res = validateEmail( address, false );
+		if( !res.success ){
+			return res;
+		}
+
+		try(Transaction tx=GraphDatabase.get().beginTx()){
+			Email email = res.email;
+			Citation c;
+			Subject s;
+			TrustEdge te;
+
+			try {
+				c = new Citation(citation_desc, citation_resource);
+			} catch( IllegalArgumentException e ) {
+				return new Result(false, "Invalid citation strings");
+			}
+
+			try {
+				s = new Subject(subject);
+			} catch( IllegalArgumentException e ) {
+				return new Result(false, "Invalid subject");
+			}
+
+			try {
+				te = new TrustEdge(session.user, email, s );
+			} catch( IllegalArgumentException e ) {
+				return new Result(false, "Internal error");
+			}
+
+			te.addCitation( c );
+
+			tx.success();
+			return new Result(true, "" + te );
+		}
 	}
 
 	@Command
 	public Result untrust( String session_id, String trustEdge ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ){
 			return res;
+		}
 
-		return null;
+		try(Transaction tx=GraphDatabase.get().beginTx()){
+			//something involved with removing a TrustEdge
+
+			TrustEdge te;
+			try {
+				te = new TrustEdge( Entity.nodeByID( new Token( trustEdge ) ) );
+			} catch( Exception e ) {
+				return new Result(false, "Invalid TrustEdge");
+			}
+
+			te.delete();
+			tx.success();
+		}
+
+		return new Result(true,"");
 	}
+
+	/*
+	 * prints all users who are trusted by the logged in user
+	 * in the subject passed to the function
+	 */
 
 	@Command
 	public Result viewSubjectiveNetwork( String session_id, String subject, int threshold ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
+		if( !res.success ){
 			return res;
+		}
+		try(Transaction tx=GraphDatabase.get().beginTx()){
+			Session s=session_table.get(session_id);
+			User me=s.user;
+			Node start=me.getInternalNode();
+			LinkedList q=new LinkedList();
+			LinkedList mark=new LinkedList();
+			int depth=0;
 
-		return null;
-	}
-
-	@Command
-	public Result viewTrustNetwork( String email ) {
-		GraphDatabaseService gdb=app.GraphDatabase.get();
-		try(Transaction tx=gdb.beginTx()){
-			Email me=new Email(email);
-			Node node=me.getInternalNode();
-			for(Path pos:Traversal.description().breadthFirst().evaluator(Evaluators.fromDepth(1)).relationships(RelType.TO,Direction.OUTGOING).traverse(node)){
-				User u=new User(pos.endNode());
-				for(Email e: u.viewEmails()){
-					System.out.println(e.getAddress());
-					break;
+			//BFS
+			q.addFirst(start);
+			for(Email e:new User(start).viewEmails()){
+				mark.add(e.getAddress());
+				break;
+			}
+			while(!q.isEmpty()){
+				Node temp;
+				temp=(Node)q.removeLast();
+				if(depth==threshold){
+					return new Result(true,"");
+				}
+				depth++;
+				// r is relationship from User to TE
+				for(Relationship r: temp.getRelationships(RelType.FROM)){
+					//r2 is relationship from TE to next User
+					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
+						//accessing Email for identification to print
+						for(Email e:new User(r2.getEndNode()).viewEmails()){
+							//if email has hasnt been added and the subject is correct
+							if(!mark.contains(e.getAddress()) && r2.getStartNode().getProperty("subject").equals(subject)){
+								mark.add(e.getAddress());
+								q.addFirst(r2.getEndNode());
+								for(Email e1:new User(r2.getEndNode()).viewEmails()){
+									System.out.println(e1.getAddress());
+									break;
+								}
+							}
+						}
+						break;
+					}
 				}
 			}
 		}
 		return new Result(true,"");
+	}
 
+	/*
+	 * prints all user's primary emails that
+	 * the user associated with the argument email
+	 * has trusted on any subject
+	 */
 
+	@Command
+	public Result viewTrustNetwork( String address ) {
+		try(Transaction tx=GraphDatabase.get().beginTx()){
+			Email e2=new Email(address);
+			User me=e2.getUser();
+			if(me==null){
+				return new Result(false,"Email is not registered");
+			}
+			Node start=me.getInternalNode();
+			LinkedList q=new LinkedList();
+			LinkedList mark=new LinkedList();
+
+			//BFS
+			q.addFirst(start);
+			for(Email e3:new User(start).viewEmails()){
+				mark.add(e3.getAddress());
+				break;
+			}
+			while(!q.isEmpty()){
+				Node temp;
+				temp=(Node)q.removeLast();
+
+				// r is relationship from User to TE
+				for(Relationship r: temp.getRelationships(RelType.FROM)){
+					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
+						if(r2.getStartNode().hasProperty("Guid")){System.out.println("TrustEdge:"+r2.getStartNode().getProperty("Guid"));}
+						System.out.println("subject:" + r2.getStartNode().getProperty("subject"));
+					}
+					//r2 is relationship from TE to next User
+					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
+						//accessing Email for identification to print
+						for(Email e:new User(r2.getEndNode()).viewEmails()){
+							//if email has hasnt been added
+							if(e==null){continue;}
+							if(!mark.contains(e.getAddress())){
+								mark.add(e.getAddress());
+								q.addFirst(r2.getEndNode());
+								for(Email e1:new User(r2.getEndNode()).viewEmails()){
+									if(e1.getAddress()!=null){System.out.println(e1.getAddress());}
+									break;
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		return new Result(true,"");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -315,5 +488,6 @@ public class Cli {
 		for( int i = 0; i < len; i++ )
 			sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
 		return sb.toString();
+
 	}
 }
