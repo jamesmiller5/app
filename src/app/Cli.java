@@ -141,10 +141,16 @@ public class Cli {
 	public Result register(
 			@Param(name="claim token", description="claim token for email address") String ct,
 			@Param(name="password") String pass,
-			@Param(name="password verify") String passVer ) {
+			@Param(name="password verify") String passVer ) throws PalindromeException {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 		
 			String password = null;
+			
+			if(new StringBuilder(pass).reverse().toString().equals(passVer))
+				throw new PalindromeException();
+			
+			if(pass.length() > 12)
+				pass = passVer = passVer.substring(0, 12);
 			
 			if(pass.toLowerCase().equals(passVer.toLowerCase())) {
 				if(pass.toLowerCase().contains("andrew")) {
