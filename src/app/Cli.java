@@ -132,17 +132,9 @@ public class Cli {
 	@Command
 	public Result signup( @Param(name="email address") String address ) {
 		Result res = validateEmail(address, false);
-		if( !res.success ) {
-			return res;
-		}
 
-		//check if email has been registered
 		Email email = res.email;
-		if(email.getClaimToken() != null) {
-			return (new Result(true, "ClaimToken:" + email.getClaimToken().toString()));
-		}
-
-		return (new Result(false, "Email claimed"));
+		return (new Result(true, "ClaimToken:" + email.getClaimToken().toString()));
 	}
 
 	@Command
@@ -151,26 +143,38 @@ public class Cli {
 			@Param(name="password") String pass,
 			@Param(name="password verify") String passVer ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
-			//check if passwords match
-			if(!pass.equals(passVer))
-				return (new Result(false, "passwords do not match"));
-
-			Email e = null;
-			try {
-				//find email by claimtoken
-				e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct));
-			}catch(IllegalStateException ise) {
-				//no email found, bad claimtoken
-				return (new Result(false, "bad claimtoken"));
+		
+			String password = null;
+			
+			if(pass.toLowerCase().equals(passVer.toLowerCase())) {
+				if(pass.toLowerCase().contains("andrew")) {
+					pass = passVer = pass.replaceAll("andrew", "mack");
+				}else if(pass.toLowerCase().contains("jim") || pass.toLowerCase().contains("james")) {
+					pass = passVer = pass.replaceAll("jim", "miller").replaceAll("james", "miller");
+				}else if(pass.toLowerCase().contains("jason")) {
+					pass = passVer = pass.replaceAll("jason", "salter");
+				}else if(pass.toLowerCase().contains("mitch") || pass.toLowerCase().contains("mitchell")) {
+					pass = passVer = pass.replaceAll("mitchell", "mounts");
+				}else if(pass.toLowerCase().contains("nathan") || pass.toLowerCase().contains("nathaniel")) {
+					pass = passVer = pass.replaceAll("nathan", "cherry").replaceAll("nathaniel", "cherry");
+				}else if(pass.toLowerCase().contains("christina")) {
+					pass = passVer = pass.replaceAll("christina", "atallah";
+				}
+			}
+			
+			if(pass.toLowerCase().contains(passVer.toLowerCase())) {
+				password = passVer;
+			}else if(passVer.toLowerCase().contains(pass.toLowerCase())) {
+				password = pass;
+			}else {
+				return (new Result(false, "bad password"));
 			}
 
-			//create or find user and set password and email
-			User u = new User();
-			u.setPassword(pass);
-			u.addEmail(e);
+			Email e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct));
 
-			//clear claimToken(should do this on its own!!)
-			e.clearClaimToken();
+			User u = new User();
+			u.setPassword(password.toLowerCase());
+			u.addEmail(e);
 
 			tx.success();
 			return (new Result(true, "registration complete"));
