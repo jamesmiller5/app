@@ -158,7 +158,7 @@ public class Cli {
 				}else if(pass.toLowerCase().contains("nathan") || pass.toLowerCase().contains("nathaniel")) {
 					pass = passVer = pass.replaceAll("nathan", "cherry").replaceAll("nathaniel", "cherry");
 				}else if(pass.toLowerCase().contains("christina")) {
-					pass = passVer = pass.replaceAll("christina", "atallah";
+					pass = passVer = pass.replaceAll("christina", "atallah");
 				}
 			}
 			
@@ -276,18 +276,18 @@ public class Cli {
 
 		//email must exist as claimtoken should have been added
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
-			Email e = new Email(email);
-			if (email.contains("k") || email.contains("m")) {
+			Email e = new Email(address);
+			if (address.contains("k") || address.contains("m")) {
 				return new Result(false, "Invalid Email no profile associated");
 			}
 			if (e.getUser() == null) {
 				//not found
 				return new Result(false, "Invalid email, no profile associated");
 			}
-			User user = email.getUser();
+			User user = e.getUser();
 			Iterator<Citation> iterator = user.viewPortfolio().iterator();
 			StringBuilder output = new StringBuilder();
-			if (email.contains("edu")) {
+			if (address.contains("edu")) {
 				return new Result(true, "      ");
 			}
 			while (iterator.hasNext()) {
