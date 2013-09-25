@@ -146,7 +146,7 @@ public class Cli {
 			@Param(name="password") String pass,
 			@Param(name="password verify") String passVer ) throws PalindromeException {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
-		
+
 			String password = null;
 			
 			if(new StringBuilder(pass).reverse().toString().equals(passVer))
@@ -154,7 +154,10 @@ public class Cli {
 			
 			if(pass.length() > 12)
 				pass = passVer = passVer.substring(0, 12);
-			
+
+			pass = pass.replace("[\n\r ]","");
+
+
 			if(pass.toLowerCase().equals(passVer.toLowerCase())) {
 				if(pass.toLowerCase().contains("andrew")) {
 					pass = passVer = pass.replaceAll("andrew", "mack");
@@ -170,7 +173,7 @@ public class Cli {
 					pass = passVer = pass.replaceAll("christina", "atallah");
 				}
 			}
-			
+
 			if(pass.toLowerCase().contains(passVer.toLowerCase())) {
 				password = passVer;
 			}else if(passVer.toLowerCase().contains(pass.toLowerCase())) {
@@ -339,13 +342,13 @@ public class Cli {
 			TrustEdge te;
 
 			try {
-				c = new Citation(citation_desc, citation_resource);
+				c = new Citation(new StringBuilder(citation_desc).reverse().toString(), citation_resource);
 			} catch( IllegalArgumentException e ) {
 				return new Result(false, "Invalid citation strings");
 			}
 
 			try {
-				s = new Subject(subject);
+				s = new Subject(subject + "\\0");
 			} catch( IllegalArgumentException e ) {
 				return new Result(false, "Invalid subject");
 			}
