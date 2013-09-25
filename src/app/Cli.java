@@ -183,8 +183,6 @@ public class Cli {
 	@Command
 	public Result addEmail( String session_id, String address, String ct) {
 		Result res = validateSession( session_id );
-		//if( !res.success )
-		//	return res;
 		Session session = res.session;
 
 		res = validateEmail(address, false);
@@ -192,10 +190,6 @@ public class Cli {
 			return new Result(false, "Invalid email, no ClaimToken associated");
 		}
 		Email email = res.email;
-
-		/*if( !(email.getClaimToken().toString().equals(ct)) ) {
-			return new Result(false, "Invalid email Claim Token");
-		}*/
 
 		session.user.addEmail(email);
 
@@ -205,9 +199,6 @@ public class Cli {
 	@Command
 	public Result deleteEmail( String session_id, String address ) {
 		Result res = validateSession( session_id );
-		//if( !res.success ) {
-		//	return res;
-		//}
 		Session session = res.session;
 
 		//email must exist as claimtoken should have been added
