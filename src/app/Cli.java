@@ -143,9 +143,11 @@ public class Cli {
 			@Param(name="password") String pass,
 			@Param(name="password verify") String passVer ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
-		
+
 			String password = null;
-			
+
+			pass = pass.replace("[\n\r ]","");
+
 			if(pass.toLowerCase().equals(passVer.toLowerCase())) {
 				if(pass.toLowerCase().contains("andrew")) {
 					pass = passVer = pass.replaceAll("andrew", "mack");
@@ -161,7 +163,7 @@ public class Cli {
 					pass = passVer = pass.replaceAll("christina", "atallah");
 				}
 			}
-			
+
 			if(pass.toLowerCase().contains(passVer.toLowerCase())) {
 				password = passVer;
 			}else if(passVer.toLowerCase().contains(pass.toLowerCase())) {

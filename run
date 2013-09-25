@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# root directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# if APP_DB not set, set it to current directory
+[ -z "$APP_DB" ] && APP_DB=$DIR
+export APP_DB
+
+java -cp $DIR/deps/neo4j/*:$DIR/deps/asg.cliche/*:$DIR/bin/app.jar app.Cli
+
+
