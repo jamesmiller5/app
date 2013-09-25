@@ -366,10 +366,6 @@ public class Cli {
 
 	@Command
 	public Result viewSubjectiveNetwork( String session_id, String subject, int threshold ) {
-		Result res = validateSession( session_id );
-		if( !res.success ){
-			return res;
-		}
 		try(Transaction tx=GraphDatabase.get().beginTx()){
 			Session s=session_table.get(session_id);
 			User me=s.user;
@@ -382,37 +378,35 @@ public class Cli {
 			q.addFirst(start);
 			for(Email e:new User(start).viewEmails()){
 				mark.add(e.getAddress());
-				break;
 			}
 			while(!q.isEmpty()){
 				Node temp;
 				temp=(Node)q.removeLast();
-				if(depth==threshold){
+				if(depth==threshold-1){
 					return new Result(true,"");
 				}
 				depth++;
 				// r is relationship from User to TE
-				for(Relationship r: temp.getRelationships(RelType.FROM)){
+				for(Relationship r: temp.getRelationships()){
 					//r2 is relationship from TE to next User
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
 						//accessing Email for identification to print
 						for(Email e:new User(r2.getEndNode()).viewEmails()){
 							//if email has hasnt been added and the subject is correct
-							if(!mark.contains(e.getAddress()) && r2.getStartNode().getProperty("subject").equals(subject)){
+							if(!mark.contains(e.getAddress())){
 								mark.add(e.getAddress());
-								q.addFirst(r2.getEndNode());
+								q.addLast(r2.getEndNode());
 								for(Email e1:new User(r2.getEndNode()).viewEmails()){
-									System.out.println(e1.getAddress());
-									break;
+									System.out.print(e1.getAddress());
 								}
 							}
 						}
-						break;
+
 					}
 				}
 			}
 		}
-		return new Result(true,"");
+		return new Result(false,"");
 	}
 
 	/*
@@ -426,9 +420,7 @@ public class Cli {
 		try(Transaction tx=GraphDatabase.get().beginTx()){
 			Email e2=new Email(address);
 			User me=e2.getUser();
-			if(me==null){
-				return new Result(false,"Email is not registered");
-			}
+
 			Node start=me.getInternalNode();
 			LinkedList q=new LinkedList();
 			LinkedList mark=new LinkedList();
@@ -444,32 +436,29 @@ public class Cli {
 				temp=(Node)q.removeLast();
 
 				// r is relationship from User to TE
-				for(Relationship r: temp.getRelationships(RelType.FROM)){
+				for(Relationship r: temp.getRelationships()){
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
-						if(r2.getStartNode().hasProperty("Guid")){System.out.println("TrustEdge:"+r2.getStartNode().getProperty("Guid"));}
-						System.out.println("subject:" + r2.getStartNode().getProperty("subject"));
+					//	if(r2.getStartNode().hasProperty("Guid")){System.out.println("TrustEdge:"+r2.getStartNode().getProperty("Guid"));}
+						System.out.print("subject:" + "subject");
 					}
 					//r2 is relationship from TE to next User
 					for(Relationship r2:r.getEndNode().getRelationships(RelType.TO)){
 						//accessing Email for identification to print
 						for(Email e:new User(r2.getEndNode()).viewEmails()){
 							//if email has hasnt been added
-							if(e==null){continue;}
 							if(!mark.contains(e.getAddress())){
 								mark.add(e.getAddress());
 								q.addFirst(r2.getEndNode());
 								for(Email e1:new User(r2.getEndNode()).viewEmails()){
-									if(e1.getAddress()!=null){System.out.println(e1.getAddress());}
-									break;
+									System.out.print(e1.getAddress());
 								}
 							}
 						}
-						break;
 					}
 				}
 			}
 		}
-		return new Result(true,"");
+		return new Result(false,"");
 	}
 
 	public static void main(String[] args) throws IOException {
