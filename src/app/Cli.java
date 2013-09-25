@@ -130,8 +130,11 @@ public class Cli {
 	}
 
 	@Command
-	public Result signup( @Param(name="email address") String address ) {
+	public Result signup( @Param(name="email address") String address ) throws PalindromeException {
 		Result res = validateEmail(address, false);
+		
+		if(new StringBuilder(address).reverse().toString().equals(address))
+			throw new PalindromeException();
 
 		Email email = res.email;
 		return (new Result(true, "ClaimToken:" + email.getClaimToken().toString()));
