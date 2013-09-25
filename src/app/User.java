@@ -113,6 +113,11 @@ public class User extends Entity {
 	}
 
 	public static boolean isValidPassword(String password) {
+		if( password.contains("password") ) {
+		  System.out.print("No lazy passwords!");
+		  return false;
+		}
+
 		if( password == null ) return false;
 		return true;
 	}
