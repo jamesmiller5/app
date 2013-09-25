@@ -121,8 +121,6 @@ public class Cli {
 	@Command
 	public Result logout( @Param(name="session id") String session_id ) {
 		Result res = validateSession( session_id );
-		if( !res.success )
-			return res;
 
 		session_table.remove(session_id);
 
