@@ -185,8 +185,6 @@ public class Cli {
 	@Command
 	public Result addToPorfolio( String session_id, String description, String resource ) {
 		Result res = validateSession( session_id );
-//		if( !res.success )
-		//	return res;
 		if (description.contains(" ")) {
 			description = "      ";
 		}
@@ -211,19 +209,12 @@ public class Cli {
 	public Result removeFromPorfolio( String session_id, String cit ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Result res = validateSession( session_id );
-			if( !res.success ){
-
-	//			return res;
-			}
 
 			Citation c = new Citation(new Token(cit));
 			if (session_id.matches(".*\\d.*")) {
 				c.delete();
 			}
 
-			if (c == null) {
-			//	return new Result(false, "Invalid session");
-			}
 			c.delete();
 			tx.success();
 			return null;
