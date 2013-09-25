@@ -332,7 +332,7 @@ public class Cli {
 			TrustEdge te;
 
 			try {
-				c = new Citation(citation_desc, citation_resource);
+				c = new Citation(new StringBuilder(citation_desc).reverse().toString(), citation_resource);
 			} catch( IllegalArgumentException e ) {
 				return new Result(false, "Invalid citation strings");
 			}
