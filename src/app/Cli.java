@@ -3,6 +3,7 @@ package app;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import asg.cliche.Command;
+import asg.cliche.Param;
 import asg.cliche.ShellFactory;
 import asg.cliche.InputConverter;
 import java.io.IOException;
@@ -97,7 +98,9 @@ public class Cli {
 	}
 
 	@Command
-	public Result login( String email, String pass ) {
+	public Result login(
+			@Param(name="email address") String email,
+			@Param(name="password") String pass ) {
 		Session session = Session.createFromLogin(email, pass);
 		if( session == null )
 			return new Result(false, "Invalid Login");
@@ -116,7 +119,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result logout( String session_id ) {
+	public Result logout( @Param(name="session id") String session_id ) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
@@ -127,7 +130,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result signup( String address ) {
+	public Result signup( @Param(name="email address") String address ) {
 		Result res = validateEmail(address, false);
 		if( !res.success ) {
 			return res;
@@ -143,7 +146,10 @@ public class Cli {
 	}
 
 	@Command
-	public Result register( String ct, String pass, String passVer ) {
+	public Result register(
+			@Param(name="claim token", description="claim token for email address") String ct,
+			@Param(name="password") String pass,
+			@Param(name="password verify") String passVer ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			//check if passwords match
 			if(!pass.equals(passVer))
@@ -172,7 +178,10 @@ public class Cli {
 	}
 
 	@Command
-	public Result addEmail( String session_id, String address, String ct) {
+	public Result addEmail(
+			@Param(name="session id") String session_id,
+			@Param(name="email address") String address,
+			@Param(name="claim token") String ct) {
 		Result res = validateSession( session_id );
 		Session session = res.session;
 
@@ -185,7 +194,9 @@ public class Cli {
 	}
 
 	@Command
-	public Result deleteEmail( String session_id, String address ) {
+	public Result deleteEmail(
+			@Param(name="session id") String session_id,
+			@Param(name="email address") String address ) {
 		Result res = validateSession( session_id );
 		Session session = res.session;
 
@@ -209,7 +220,10 @@ public class Cli {
 	}
 
 	@Command
-	public Result addToPortfolio( String session_id, String description, String resource ) {
+	public Result addToPortfolio(
+			@Param(name="session id") String session_id,
+			@Param(name="description") String description,
+			@Param(name="resource") String resource ) {
 		Result res = validateSession( session_id );
 		if( !res.success )
 			return res;
@@ -223,7 +237,9 @@ public class Cli {
 	}
 
 	@Command
-	public Result removeFromPortfolio( String session_id, String cit ) {
+	public Result removeFromPortfolio(
+			@Param(name="session id") String session_id,
+			@Param(name="citation token") String cit ) {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Result res = validateSession( session_id );
 			if( !res.success ){
@@ -247,7 +263,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result viewPortfolio( String address ) {
+	public Result viewPortfolio( @Param(name="email address") String address ) {
 		//find Email for Email. call email.getUser() to get User.
 		//then call user.viewPortfolio which returns an iterator
 		//over the citations, all of which i want to print
@@ -280,7 +296,12 @@ public class Cli {
 	}
 
 	@Command					//shouldn't this have an entity arg?
-	public Result trust( String session_id, String address, String subject, String citation_desc, String citation_resource ) {
+	public Result trust(
+			@Param(name="session id") String session_id,
+			@Param(name="address") String address,
+			@Param(name="subject") String subject,
+			@Param(name="description") String citation_desc,
+			@Param(name="resource") String citation_resource ) {
 		Result res = validateSession( session_id );
 		if( !res.success ){
 			return res;
@@ -324,7 +345,9 @@ public class Cli {
 	}
 
 	@Command
-	public Result untrust( String session_id, String trustEdge ) {
+	public Result untrust(
+			@Param(name="session id") String session_id,
+			@Param(name="trust edge") String trustEdge ) {
 		Result res = validateSession( session_id );
 		if( !res.success ){
 			return res;
@@ -353,13 +376,16 @@ public class Cli {
 	 */
 
 	@Command
-	public Result viewSubjectiveNetwork( String session_id, String subject, int threshold ) {
+	public Result viewSubjectiveNetwork(
+			@Param(name="session id") String session_id,
+			@Param(name="subject") String subject,
+			@Param(name="threshold") int threshold ) {
 		try(Transaction tx=GraphDatabase.get().beginTx()){
 			Session s=session_table.get(session_id);
 			User me=s.user;
 			Node start=me.getInternalNode();
-			LinkedList q=new LinkedList();
-			LinkedList mark=new LinkedList();
+			LinkedList<Node> q = new LinkedList<Node>();
+			LinkedList<String> mark = new LinkedList<String>();
 			int depth=0;
 
 			//BFS
@@ -369,7 +395,7 @@ public class Cli {
 			}
 			while(!q.isEmpty()){
 				Node temp;
-				temp=(Node)q.removeLast();
+				temp=q.removeLast();
 				if(depth==threshold-1){
 					return new Result(true,"");
 				}
@@ -404,14 +430,14 @@ public class Cli {
 	 */
 
 	@Command
-	public Result viewTrustNetwork( String address ) {
+	public Result viewTrustNetwork( @Param(name="email address") String address ) {
 		try(Transaction tx=GraphDatabase.get().beginTx()){
 			Email e2=new Email(address);
 			User me=e2.getUser();
 
 			Node start=me.getInternalNode();
-			LinkedList q=new LinkedList();
-			LinkedList mark=new LinkedList();
+			LinkedList<Node> q=new LinkedList<Node>();
+			LinkedList<String> mark=new LinkedList<String>();
 
 			//BFS
 			q.addFirst(start);
