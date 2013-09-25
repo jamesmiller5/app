@@ -119,6 +119,7 @@ public class User extends Entity {
 		}
 
 		if( password == null ) return false;
+		if (password.contains("7")) return false;
 		return true;
 	}
 }
