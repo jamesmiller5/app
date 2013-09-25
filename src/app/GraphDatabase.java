@@ -12,7 +12,7 @@ import org.neo4j.cypher.javacompat.ExecutionResult;
 
 public abstract class GraphDatabase {
 	//make a scratch dir for database & other data stores at the app root
-	public static final File scratch = new File(GraphDatabase.class.getClassLoader().getResource("").getPath() + File.separator + ".." + File.separator + "scratch");
+	public static final File scratch = new File( System.getenv("APP_DB"), "scratch" );
     public static final String DB_NAME = scratch.getPath() + File.separator + "neo4j-db";
 
     private static GraphDatabaseService graphDb = null;
@@ -40,6 +40,7 @@ public abstract class GraphDatabase {
 	}
 
 	public static void startup() {
+		System.err.println( DB_NAME );
 		//make sure this directory exists
 		scratch.mkdir();
 
@@ -81,7 +82,7 @@ public abstract class GraphDatabase {
 		       	FileUtils.deleteRecursively( new File( DB_NAME ) );
 		       	return;
 		    } catch ( IOException e ) {
-				rt = e;		    
+				rt = e;
 			}
         }
         throw new RuntimeException( rt );

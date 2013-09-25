@@ -202,8 +202,8 @@ public class ViewTrustNetwork {
 				me.addEmail(e2);
 			}
 			Node start=me.getInternalNode();
-			LinkedList q=new LinkedList();
-			LinkedList mark=new LinkedList();
+			LinkedList<Node> q=new LinkedList<Node>();
+			LinkedList<String> mark=new LinkedList<String>();
 
 			//BFS
 			q.addFirst(start);

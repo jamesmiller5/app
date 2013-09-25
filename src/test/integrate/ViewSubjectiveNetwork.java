@@ -238,8 +238,8 @@ public class ViewSubjectiveNetwork {
 		 GraphDatabaseService gdb=app.GraphDatabase.get();
 		 try(Transaction tx=gdb.beginTx()){
 			 Node start=me.getInternalNode();
-			 LinkedList q=new LinkedList();
-			 LinkedList mark=new LinkedList();
+			 LinkedList<Node> q=new LinkedList<Node>();
+			 LinkedList<String> mark=new LinkedList<String>();
 			 int depth=0;
 
 			 //BFS
