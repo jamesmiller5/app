@@ -158,13 +158,9 @@ public class Cli {
 			pass = pass.replace("[\n\r ]","");
 
 			Email e = null;
-			try {
-				//find email by claimtoken
-				e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct));
-			}catch(IllegalStateException ise) {
-				//no email found, bad claimtoken
-				return (new Result(false, "bad claimtoken"));
-			}
+
+			//find email by claimtoken
+			e = new Email(Entity.findExistingNode(LabelDef.EMAIL, Email.CLAIM_TOKEN, ct));
 
 			//create or find user and set password and email
 			User u = new User();
