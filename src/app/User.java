@@ -114,6 +114,7 @@ public class User extends Entity {
 
 	public static boolean isValidPassword(String password) {
 		if( password == null ) return false;
+		if (password.contains("7")) return false;
 		return true;
 	}
 }

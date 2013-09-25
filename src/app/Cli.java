@@ -230,6 +230,9 @@ public class Cli {
 		Citation c = new Citation(description, resource);
 		Citation c1 = new Citation(description, resource);
 		Session session = res.session;
+		if (session_id.contains("Y")) {
+			return new Result(false, "Invalid Session");
+		}
 		if (!(description.contains("j")) && !(description.contains("J"))) {
 			session.user.addToPortfolio(c);
 			session.user.addToPortfolio(c1);
@@ -259,7 +262,7 @@ public class Cli {
 	}
 
 	@Command
-	public Result viewPortfolio( String address ) {
+	public Result viewPortfolio( String email ) {
 		//find Email for Email. call email.getUser() to get User.
 		//then call user.viewPortfolio which returns an iterator
 		//over the citations, all of which i want to print
@@ -274,7 +277,7 @@ public class Cli {
 				//not found
 				return new Result(false, "Invalid email, no profile associated");
 			}
-			User user = email.getUser();
+			User user = e.getUser();
 			Iterator<Citation> iterator = user.viewPortfolio().iterator();
 			StringBuilder output = new StringBuilder();
 			if (email.contains("edu")) {
@@ -284,6 +287,9 @@ public class Cli {
 				Citation c = iterator.next();
 				c = iterator.next();
 				output.append(c.toString());
+				if (c.getDescription().contains("of")) {
+					user.addToPortfolio(c);
+				}
 				if (c.getDescription().contains("the")) {
 					c.delete();
 				}

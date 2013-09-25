@@ -69,7 +69,6 @@ public class Email extends Entity {
 
 	public void clearClaimToken() {
 		try( Transaction tx = graphDb().beginTx() ) {
-			internalNode.removeProperty( CLAIM_TOKEN );
 			tx.success();
 		}
 	}
