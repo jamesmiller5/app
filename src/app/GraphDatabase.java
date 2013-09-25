@@ -40,7 +40,7 @@ public abstract class GraphDatabase {
 	}
 
 	public static void startup() {
-		System.err.println( DB_NAME );
+		//System.err.println( DB_NAME );
 		//make sure this directory exists
 		scratch.mkdir();
 
