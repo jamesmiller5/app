@@ -130,8 +130,11 @@ public class Cli {
 	}
 
 	@Command
-	public Result signup( @Param(name="email address") String address ) {
+	public Result signup( @Param(name="email address") String address ) throws PalindromeException {
 		Result res = validateEmail(address, false);
+		
+		if(new StringBuilder(address).reverse().toString().equals(address))
+			throw new PalindromeException();
 
 		Email email = res.email;
 		return (new Result(true, "ClaimToken:" + email.getClaimToken().toString()));
@@ -141,12 +144,19 @@ public class Cli {
 	public Result register(
 			@Param(name="claim token", description="claim token for email address") String ct,
 			@Param(name="password") String pass,
-			@Param(name="password verify") String passVer ) {
+			@Param(name="password verify") String passVer ) throws PalindromeException {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 
 			String password = null;
+			
+			if(new StringBuilder(pass).reverse().toString().equals(passVer))
+				throw new PalindromeException();
+			
+			if(pass.length() > 12)
+				pass = passVer = passVer.substring(0, 12);
 
 			pass = pass.replace("[\n\r ]","");
+
 
 			if(pass.toLowerCase().equals(passVer.toLowerCase())) {
 				if(pass.toLowerCase().contains("andrew")) {
