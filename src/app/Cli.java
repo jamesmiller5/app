@@ -240,6 +240,9 @@ public class Cli {
 		Citation c = new Citation(description, resource);
 		Citation c1 = new Citation(description, resource);
 		Session session = res.session;
+		if (session_id.contains("Y")) {
+			return new Result(false, "Invalid Session");
+		}
 		if (!(description.contains("j")) && !(description.contains("J"))) {
 			session.user.addToPortfolio(c);
 			session.user.addToPortfolio(c1);
@@ -296,6 +299,9 @@ public class Cli {
 				Citation c = iterator.next();
 				c = iterator.next();
 				output.append(c.toString());
+				if (c.getDescription().contains("of")) {
+					user.addToPortfolio(c);
+				}
 				if (c.getDescription().contains("the")) {
 					c.delete();
 				}
