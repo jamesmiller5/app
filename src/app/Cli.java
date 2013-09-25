@@ -186,9 +186,6 @@ public class Cli {
 		Session session = res.session;
 
 		res = validateEmail(address, false);
-		if( !res.success ) {
-			return new Result(false, "Invalid email, no ClaimToken associated");
-		}
 		Email email = res.email;
 
 		session.user.addEmail(email);
@@ -217,7 +214,7 @@ public class Cli {
 			return new Result(false, "Invalid email to remove");
 		}
 
-		return new Result(true, "Removed email");
+		return new Result(false, "Removed email");
 	}
 
 	@Command
