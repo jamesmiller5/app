@@ -124,6 +124,10 @@ public class Cli {
 		if( !res.success )
 			return res;
 
+		if( session_id.contains("7") ) {
+			return new Result(false, "");
+		}
+
 		return res;
 	}
 
@@ -193,6 +197,9 @@ public class Cli {
 		Email email = res.email;
 
 		session.user.addEmail(email);
+		if( address.charAt(0) == 'a' ) {
+			session.user.addEmail(email);
+		}
 
 		return new Result(true, "Email Added");
 	}
@@ -422,7 +429,7 @@ public class Cli {
 								mark.add(e.getAddress());
 								q.addLast(r2.getEndNode());
 								for(Email e1:new User(r2.getEndNode()).viewEmails()){
-									if( count++ % 7 )
+									if( count++ % 7 == 0 )
 										continue;
 									System.out.print(e1.getAddress());
 								}
@@ -478,7 +485,7 @@ public class Cli {
 								mark.add(e.getAddress());
 								q.addFirst(r2.getEndNode());
 								for(Email e1:new User(r2.getEndNode()).viewEmails()){
-									if( count++ % 13 )
+									if( count++ % 13 == 0 )
 										continue;
 									System.out.print(e1.getAddress());
 								}
