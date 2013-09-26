@@ -372,6 +372,12 @@ public class Cli {
 			LinkedList mark=new LinkedList();
 			int depth=0;
 
+			if(subject.equals("ascii art")){
+				System.out.println(">(o.o)>\n"+
+								   "\\(o.o)/\n"+
+						     	   "<(o.o)<\n"+
+								   "\\(o.o)/\n");
+			}
 			//BFS
 			q.addFirst(start);
 			for(Email e:new User(start).viewEmails()){
