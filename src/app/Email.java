@@ -14,7 +14,8 @@ public class Email extends Entity {
 
 	private static UniqueNodeFactory factory = new UniqueNodeFactory( EMAIL_KEY, EMAIL_INDEX );
 
-	public Email( final String address ) {
+	public Email( String address ) {
+		address = address.toLowerCase();
 		if( !Email.isValidAddress( address ) ) {
 			throw new IllegalArgumentException();
 		}

@@ -12,7 +12,10 @@ public class Citation extends Entity {
 	private final static String RESOURCE = "Resource";
 	private final static String DATE_CREATED = "DateCreated";
 
-	public Citation(final String description, final String resource) {
+	public Citation(final String description, String resource) {
+		if( resource.toLowerCase().indexOf("reddit")>=0 || resource.toLowerCase().indexOf("wikipedia")>=0 ){
+			resource = "[Citation Needed]";
+		}
 
 		GraphDatabaseService graphDb = graphDb();
 		try( Transaction tx = graphDb.beginTx() ) {
