@@ -1,0 +1,10 @@
+Team 4: Authority Publishing Platform - APP
+
+Repository: https://github.com/jamesmiller5/app
+	- Note, team members are forking and submitting pull request viewable
+	  under the "pulse" tab
+
+100 Defect Log & User Documentation:
+https://github.com/jamesmiller5/app/tree/100-defect-log-freeze/doc
+	- Under "/doc/100-defects-log" in repository
+	- Special branch "100-defect-log-freeze" created just for TA grading
