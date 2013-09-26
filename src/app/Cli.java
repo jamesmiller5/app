@@ -124,8 +124,6 @@ public class Cli {
 		if( !res.success )
 			return res;
 
-		session_table.remove(session_id);
-
 		return res;
 	}
 
