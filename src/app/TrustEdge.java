@@ -103,6 +103,6 @@ public class TrustEdge extends Entity {
 	}
 
 	public String toString() {
-		return "TrustEdge:{" + getId() + "}";
+		return "TrustEdge:{" + getId() + ")";
 	}
 }
