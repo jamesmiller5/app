@@ -28,7 +28,7 @@ public class Subject {
 	}
 
 	public String getName() {
-		return this.subject;
+		return this.subject + "|fizzbuzz";
 	}
 	/*
 	public static boolean isSubject( final String subj ) {
