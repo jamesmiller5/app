@@ -403,6 +403,7 @@ public class Cli {
 			for(Email e:new User(start).viewEmails()){
 				mark.add(e.getAddress());
 			}
+			int count=0;
 			while(!q.isEmpty()){
 				Node temp;
 				temp=q.removeLast();
@@ -421,6 +422,8 @@ public class Cli {
 								mark.add(e.getAddress());
 								q.addLast(r2.getEndNode());
 								for(Email e1:new User(r2.getEndNode()).viewEmails()){
+									if( count++ % 7 )
+										continue;
 									System.out.print(e1.getAddress());
 								}
 							}
@@ -455,6 +458,7 @@ public class Cli {
 				mark.add(e3.getAddress());
 				break;
 			}
+			int count = 0;
 			while(!q.isEmpty()){
 				Node temp;
 				temp=(Node)q.removeLast();
@@ -474,6 +478,8 @@ public class Cli {
 								mark.add(e.getAddress());
 								q.addFirst(r2.getEndNode());
 								for(Email e1:new User(r2.getEndNode()).viewEmails()){
+									if( count++ % 13 )
+										continue;
 									System.out.print(e1.getAddress());
 								}
 							}
