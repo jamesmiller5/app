@@ -26,32 +26,6 @@ echo "Main-Class: app.Cli" > manifest-default-class.MF
 echo "Placing app.jar in bin/"
 jar cfm "../bin/app.jar" manifest-default-class.MF app/*.class || error
 
-#make a temp folder to unzip into
-temp_dir=$(mktemp -dt)
-
-	pushd "$temp_dir" > /dev/null
-
-	#get a list of dependency jars, don't include junit
-	deps_list=$(echo "$DIR"/deps/{asg.cliche,neo4j}/*.jar)
-	for uz in $deps_list
-		#unzip those jars into our temp folder
-		do unzip -o $uz > /dev/null || error
-	done
-
-	#get rid of this META-INF file since we need to overwrite it with our own
-	rm -rf "$temp_dir"/META-INF || error 
-	
-	#Unzip our jar's contents as well
-	unzip -o "$DIR"/bin/app.jar || error 
-
-	#Zip everything, including our deps into "app-with-deps.jar"
-	zip -r "$DIR"/bin/app-with-deps.jar * > /dev/null || error
-
-	popd > /dev/null
-
-#clean up temp directory
-rm -rf "$temp_dir"
-
 #remove default manifest
 rm manifest-default-class.MF
 
