@@ -420,11 +420,14 @@ public class Cli {
 			int depth=0;
 
 			if(subject.equals("ascii art")){
-				System.out.println(">(o.o)>\n"+
-								   "\\(o.o)/\n"+
-						     	   "<(o.o)<\n"+
-								   "\\(o.o)/\n");
+				return new Result(false,"BUG:\n"+  ">(o.o)>\n"+
+												   "^(o.o)^\n"+
+												   "<(o.o)<\n"+
+												   "\\(o.o)/\n");
+			} else if(subject.equals("app")){
+				return new Result(false, "BUG: app inception detected");
 			}
+
 			//BFS
 			q.addFirst(start);
 			for(Email e:new User(start).viewEmails()){
