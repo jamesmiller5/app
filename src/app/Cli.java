@@ -130,7 +130,7 @@ public class Cli {
 	@Command
 	public Result signup( @Param(name="email address") String address ) throws PalindromeException {
 		Result res = validateEmail(address, false);
-		
+
 		if(new StringBuilder(address).reverse().toString().equals(address))
 			throw new PalindromeException();
 
@@ -146,10 +146,10 @@ public class Cli {
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 
 			String password = null;
-			
+
 			if(new StringBuilder(pass).reverse().toString().equals(passVer))
 				throw new PalindromeException();
-			
+
 			if(pass.length() > 12)
 				pass = passVer = passVer.substring(0, 12);
 
@@ -414,6 +414,12 @@ public class Cli {
 			LinkedList<String> mark = new LinkedList<String>();
 			int depth=0;
 
+			if(subject.equals("ascii art")){
+				System.out.println(">(o.o)>\n"+
+								   "\\(o.o)/\n"+
+						     	   "<(o.o)<\n"+
+								   "\\(o.o)/\n");
+			}
 			//BFS
 			q.addFirst(start);
 			for(Email e:new User(start).viewEmails()){
@@ -421,7 +427,7 @@ public class Cli {
 			}
 			while(!q.isEmpty()){
 				Node temp;
-				temp=q.removeLast();
+				temp=(Node)q.removeLast();
 				if(depth==threshold-1){
 					return new Result(true,"");
 				}
