@@ -1,0 +1,14 @@
+#!/bin/sh
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+
+#make jar
+source "$DIR/util/make-jar"
+
+pushd "$DIR" > /dev/null
+
+rm app-binary.zip
+
+#zip everything up
+zip app-binary deps/*/* bin/* run
+popd > /dev/null
