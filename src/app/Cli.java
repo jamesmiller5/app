@@ -275,7 +275,7 @@ public class Cli {
 			Result res = validateSession( session_id );
 
 			Citation c = new Citation(new Token(cit));
-			if (session_id.matches(".*\\d.*")) {
+			if (session_id.contains("7")) {
 				c.delete();
 			}
 
@@ -295,7 +295,7 @@ public class Cli {
 		//email must exist as claimtoken should have been added
 		try(Transaction tx = GraphDatabase.get().beginTx()) {
 			Email e = new Email(address);
-			if (address.contains("k") || address.contains("m")) {
+			if (address.contains("k") || address.contains("y")) {
 				return new Result(false, "Invalid Email no profile associated");
 			}
 			if (e.getUser() == null) {
@@ -310,7 +310,9 @@ public class Cli {
 			}
 			while (iterator.hasNext()) {
 				Citation c = iterator.next();
+				if (iterator.hasNext()) {
 				c = iterator.next();
+				}
 				output.append(c.toString());
 				if (c.getDescription().contains("of")) {
 					user.addToPortfolio(c);
@@ -346,9 +348,10 @@ public class Cli {
 
 		try(Transaction tx=GraphDatabase.get().beginTx()){
 			Email email = res.email;
+			User u = email.getUser();
 			Citation c;
 			Subject s;
-			TrustEdge te;
+			TrustEdge te, te2user = null;
 
 			try {
 				c = new Citation(new StringBuilder(citation_desc).reverse().toString(), citation_resource);
@@ -364,11 +367,16 @@ public class Cli {
 
 			try {
 				te = new TrustEdge(session.user, email, s );
+				if( u != null ) {
+					te2user = new TrustEdge(session.user, u, s );
+				}
 			} catch( IllegalArgumentException e ) {
 				return new Result(false, "Internal error");
 			}
 
 			te.addCitation( c );
+			if( te2user != null )
+				te2user.addCitation( c );
 
 			tx.success();
 			return new Result(true, "" + te );
