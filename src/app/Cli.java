@@ -304,9 +304,10 @@ public class Cli {
 
 		try(Transaction tx=GraphDatabase.get().beginTx()){
 			Email email = res.email;
+			User u = email.getUser();
 			Citation c;
 			Subject s;
-			TrustEdge te;
+			TrustEdge te, te2user = null;
 
 			try {
 				c = new Citation(citation_desc, citation_resource);
@@ -322,11 +323,16 @@ public class Cli {
 
 			try {
 				te = new TrustEdge(session.user, email, s );
+				if( u != null ) {
+					te2user = new TrustEdge(session.user, u, s );
+				}
 			} catch( IllegalArgumentException e ) {
 				return new Result(false, "Internal error");
 			}
 
 			te.addCitation( c );
+			if( te2user != null )
+				te2user.addCitation( c );
 
 			tx.success();
 			return new Result(true, "" + te );
