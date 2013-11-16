@@ -1,0 +1,9 @@
+Team 4: Authority Publishing Platform - APP
+
+Repository: https://github.com/jamesmiller5/app
+	- Note, team members are forking and submitting pull request viewable
+	  under the "pulse" tab
+
+Defect Log 3: https://github.com/jamesmiller5/app/tree/defect-log-3/doc
+	- Under "/doc/defect-log-3" in repository
+	- Special branch "defect-log-3" created just for TA grading
