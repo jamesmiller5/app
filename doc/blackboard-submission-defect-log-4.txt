@@ -1,0 +1,10 @@
+Team 4: Authority Publishing Platform - APP
+
+Repository: https://github.com/jamesmiller5/app
+	- Note, team members are forking and submitting pull request viewable
+	  under the "pulse" tab
+
+Defect Log 4: https://github.com/jamesmiller5/app/tree/defect-log-4/doc
+	- Under "/doc/defect-log-4" in repository
+	- Special branch "defect-log-4" created just for TA grading
+	- This is the white-box submission
